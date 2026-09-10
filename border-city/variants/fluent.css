@@ -1,0 +1,65 @@
+/* Border City variant: Fluent.
+ * Maps Microsoft Fluent 2 web-component tokens
+ * (github.com/microsoft/fluentui, @fluentui/web-components)
+ * onto Border City chrome vars. Obsidian themes ship CSS only,
+ * so no JS components bundled: this pins the token values the
+ * Fluent components would emit (accent, neutral layers, corner
+ * radius, depth shadow, Segoe UI stack) plus 4 shape rules.
+ * Markdown render untouched (Border owns it).
+ */
+:root {
+  --fluent-accent-light: #0f6cbd;
+  --fluent-accent-dark: #479ef5;
+  --fluent-neutral-light: #f3f2f1;
+  --fluent-neutral-dark: #1b1a19;
+  --fluent-font: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+}
+
+body {
+  --font-interface-theme: var(--fluent-font);
+  --corner-smoothing: 30%;
+  --anim-duration-fast: 100ms;
+  /* Fluent control corner radius: small/rectangular */
+  --radius-xs: 2px;
+  --radius-s: 4px;
+  --radius-sm: 6px;
+  --radius-m: 8px;
+  --radius-ml: 10px;
+  --radius-l: 12px;
+  --radius-xl: 16px;
+  --radius-xxl: 20px;
+  --radius-prompt: 20px;
+  --radius-settings: 20px;
+  /* Flat Fluent depth; acrylic blur reserved for overlays */
+  --blur-radius-s: 16px;
+  --blur-radius-m: 30px;
+  --blur-saturation: 1.25;
+}
+
+.theme-light {
+  --color-accent: var(--fluent-accent-light);
+  --interactive-accent: var(--fluent-accent-light);
+  --interactive-accent-hover: #115ea3;
+  --background-secondary: var(--fluent-neutral-light);
+}
+
+.theme-dark {
+  --color-accent: var(--fluent-accent-dark);
+  --interactive-accent: var(--fluent-accent-dark);
+  --interactive-accent-hover: #5aa9ff;
+  --background-secondary: var(--fluent-neutral-dark);
+}
+
+/* Fluent controls: 32px box, 4px corners */
+button:not(.clickable-icon),
+input[type="text"], input[type="search"], select {
+  min-height: 32px;
+  border-radius: var(--radius-s);
+}
+.menu, .popover, .suggestion-container {
+  border-radius: var(--radius-m);
+  backdrop-filter: blur(var(--blur-radius-s)) saturate(var(--blur-saturation));
+}
+.modal, .prompt {
+  border-radius: var(--radius-xl);
+}

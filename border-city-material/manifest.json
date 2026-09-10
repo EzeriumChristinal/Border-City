@@ -1,0 +1,11 @@
+{
+  "name": "Border City - Material",
+  "version": "1.0.0",
+  "minAppVersion": "1.13.0",
+  "author": "Velocity (Floodlight) + Border (Akifyss), merged build",
+  "authorUrl": "https://github.com/Akifyss/obsidian-border",
+  "modes": [
+    "light",
+    "dark"
+  ]
+}

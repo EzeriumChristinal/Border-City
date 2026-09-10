@@ -1,0 +1,69 @@
+/* Border City variant: Liquid Glass.
+ * CSS approximation of naughtyduk/liquidGL WebGL refraction
+ * (github.com/naughtyduk/liquidGL: real-time liquid-glass
+ * displacement/specular). Obsidian themes ship CSS only, no WebGL,
+ * so chrome gets the glass half: boosted backdrop blur + saturate,
+ * translucent surfaces, inset specular edge. Markdown stays opaque
+ * for readability. Where backdrop-filter missing, solid fallback.
+ */
+:root {
+  --liquid-blur-s: 16px;
+  --liquid-blur-m: 24px;
+  --liquid-blur-l: 32px;
+  --liquid-saturate: 1.6;
+  --liquid-specular: inset 0 1px 1px 0 rgba(255, 255, 255, 0.35), inset 0 -1px 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+body {
+  --corner-smoothing: 80%;
+  --blur-radius-s: var(--liquid-blur-s);
+  --blur-radius-m: var(--liquid-blur-m);
+  --blur-saturation: var(--liquid-saturate);
+  /* Full squircle sheet look */
+  --radius-xs: 8px;
+  --radius-s: 12px;
+  --radius-sm: 14px;
+  --radius-m: 16px;
+  --radius-ml: 20px;
+  --radius-l: 24px;
+  --radius-xl: 28px;
+  --radius-xxl: 32px;
+  --radius-prompt: 28px;
+  --radius-settings: 32px;
+}
+
+.theme-light {
+  --background-primary: color-mix(in srgb, var(--color-base-05) 55%, transparent);
+  --background-secondary: color-mix(in srgb, var(--color-base-10) 55%, transparent);
+  --status-bar-background: color-mix(in srgb, var(--background-secondary) 60%, transparent);
+}
+
+.theme-dark {
+  --background-primary: color-mix(in srgb, var(--color-base-00) 55%, transparent);
+  --background-secondary: color-mix(in srgb, var(--color-base-10) 55%, transparent);
+  --status-bar-background: color-mix(in srgb, var(--background-secondary) 60%, transparent);
+}
+
+/* Glass overlays: blur + saturate + specular edge */
+.modal, .prompt, .menu, .popover, .suggestion-container, .status-bar {
+  backdrop-filter: blur(var(--liquid-blur-m)) saturate(var(--liquid-saturate));
+  -webkit-backdrop-filter: blur(var(--liquid-blur-m)) saturate(var(--liquid-saturate));
+  box-shadow: var(--liquid-specular), var(--menu-shadow, 0 8px 32px rgba(0, 0, 0, 0.25));
+}
+body:not(.is-mobile) .workspace-tab-container,
+.mod-sidedock .workspace-leaf {
+  backdrop-filter: blur(var(--liquid-blur-s)) saturate(var(--liquid-saturate));
+  -webkit-backdrop-filter: blur(var(--liquid-blur-s)) saturate(var(--liquid-saturate));
+}
+
+/* No-blur fallback: solid surfaces */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .theme-light {
+    --background-primary: var(--color-base-05);
+    --background-secondary: var(--color-base-10);
+  }
+  .theme-dark {
+    --background-primary: var(--color-base-00);
+    --background-secondary: var(--color-base-10);
+  }
+}

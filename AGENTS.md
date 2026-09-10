@@ -15,6 +15,11 @@ Upstream sources are vendored read-only. Never edit them in place.
   - `dist/`: intermediates (`chrome.css`, `bridge.css`,
     `border-markdown.css`, settings slices). Generated. Never hand-edit.
   - `theme.css`: shipped artifact. Generated. Never hand-edit.
+  - `variants/*.css`: hand-written variant token layers (fluent, material,
+    liquid). Only hand-written sources besides `build.mjs`.
+- `border-city-fluent/`, `border-city-material/`, `border-city-liquid/`:
+  generated sibling themes (each `manifest.json` + `theme.css`).
+  Generated. Never hand-edit.
 
 ## Rebuild
 

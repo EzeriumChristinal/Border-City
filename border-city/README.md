@@ -38,6 +38,27 @@ checkboxes, icon/pdf/mobile/plugin sections.
 
 Two-var `dist/bridge.css` keeps Border rules that referenced dropped systems.
 
+## Variants
+
+`npm run build` also emits three separate installable themes as siblings
+of this folder (`border-city-fluent/`, `border-city-material/`,
+`border-city-liquid/`, each `theme.css` = base + one token layer,
+`manifest.json` generated with its own name). Copy all four folders into
+`<vault>/.obsidian/themes/` and each shows as its own theme:
+
+- `fluent/` — Fluent 2 web-component tokens (`@fluentui/web-components`):
+  Segoe UI, 4px controls, flat depth, `#0f6cbd` / `#479ef5` accent.
+- `material/` — Material Web M3 tokens (`@material/web`): Roboto,
+  M3 shape scale + pill toggles, state-layer hover, `#6750a4` /
+  `#d0bcff` baseline primary.
+- `liquid/` — liquidGL-style glass (naughtyduk/liquidGL): boosted
+  backdrop blur + saturate, translucent surfaces, specular edge,
+  solid fallback without `backdrop-filter`.
+
+Obsidian themes ship CSS only, so no JS/WebGL bundled: variants pin
+the token values each component library would emit. Markdown render
+untouched in all three (Border owns it).
+
 ## Known tradeoffs
 
 - Editor line height defaults to Border 1.5 (Border owns `--line-height-normal`;

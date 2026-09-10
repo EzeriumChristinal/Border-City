@@ -1,0 +1,75 @@
+/* Border City variant: Material.
+ * Maps Material Web M3 tokens (github.com/material-components/material-web,
+ * @material/web: --md-sys-color-*, --md-sys-shape-*, --md-sys-typescale-*)
+ * onto Border City chrome vars. Obsidian themes ship CSS only, so no JS
+ * components bundled: this pins baseline-M3 color/shape/type values plus
+ * state-layer hover and 4 shape rules (FAB pill, toggles, sheets).
+ * Markdown render untouched (Border owns it).
+ */
+:root {
+  --md-sys-color-primary-light: #6750a4;
+  --md-sys-color-primary-dark: #d0bcff;
+  --md-sys-color-surface-light: #fef7ff;
+  --md-sys-color-surface-container-light: #f3edf7;
+  --md-sys-color-surface-dark: #141218;
+  --md-sys-color-surface-container-dark: #1d1b20;
+  --md-sys-font: "Roboto", system-ui, sans-serif;
+}
+
+body {
+  --font-interface-theme: var(--md-sys-font);
+  --corner-smoothing: 50%;
+  /* M3 shape scale: cards 12-16, sheets 28, full pill via 999px below */
+  --radius-xs: 4px;
+  --radius-s: 8px;
+  --radius-sm: 12px;
+  --radius-m: 12px;
+  --radius-ml: 16px;
+  --radius-l: 16px;
+  --radius-xl: 28px;
+  --radius-xxl: 28px;
+  --radius-prompt: 28px;
+  --radius-settings: 28px;
+  /* M3 switch: 52x32 pill track */
+  --toggle-width: 52px;
+  --toggle-border-width: 2px;
+  --toggle-thumb-width: 16px;
+  --toggle-thumb-height: 16px;
+  --toggle-s-width: 44px;
+  --toggle-s-thumb-width: 12px;
+  --toggle-s-thumb-height: 12px;
+}
+
+.theme-light {
+  --color-accent: var(--md-sys-color-primary-light);
+  --interactive-accent: var(--md-sys-color-primary-light);
+  --interactive-accent-hover: #5b45a0;
+  --background-primary: var(--md-sys-color-surface-light);
+  --background-secondary: var(--md-sys-color-surface-container-light);
+  /* M3 state layer: 8% primary hover */
+  --background-modifier-hover: color-mix(in srgb, var(--md-sys-color-primary-light) 8%, transparent);
+}
+
+.theme-dark {
+  --color-accent: var(--md-sys-color-primary-dark);
+  --interactive-accent: var(--md-sys-color-primary-dark);
+  --interactive-accent-hover: #dbc8ff;
+  --background-primary: var(--md-sys-color-surface-dark);
+  --background-secondary: var(--md-sys-color-surface-container-dark);
+  --background-modifier-hover: color-mix(in srgb, var(--md-sys-color-primary-dark) 8%, transparent);
+}
+
+/* M3 FAB: 16px rounded, tonal container */
+body:not(.is-mobile) .workspace-leaf-content[data-type="markdown"] .view-actions .clickable-icon.view-action:not(:last-child, .mod-bookmark) {
+  border-radius: 16px;
+}
+/* M3 pills: toggles, tags, status bar */
+.checkbox-container, .status-bar, .tag, .pill, .multi-select-pill {
+  border-radius: 999px;
+}
+.menu, .suggestion-container {
+  border-radius: var(--radius-ml);
+}
+.modal, .prompt {
+  border-radius: var(--radius-xl);
+}

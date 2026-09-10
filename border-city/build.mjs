@@ -105,7 +105,7 @@ const DROP_IDS = ['ss-section-news', 'enable-special-text', 'enable-special-code
 const raw = readFileSync(join(VELO, 'src/style-settings.css'), 'utf8').split('\n');
 const header = []; const blocks = []; let cur = null;
 for (const ln of raw) {
-  if (ln.trim() === '-') { if (cur) blocks.push(cur); cur = [ln]; }
+  if (ln === '-') { if (cur) blocks.push(cur); cur = [ln]; } // col-0 only: tab-indented option dashes stay in-block
   else if (cur) cur.push(ln); else header.push(ln);
 }
 if (cur) blocks.push(cur);
@@ -158,4 +158,24 @@ const close = (themeOut.match(/\}/g) || []).length;
 if (open !== close) die('brace imbalance ' + open + ' vs ' + close);
 writeFileSync(join(OUT, 'theme.css'), themeOut);
 console.log('theme.css bytes: ' + themeOut.length + ', braces: ' + open);
+// ---- variants: separate installable themes, base + one token layer ----
+const VARIANTS = [
+  { name: 'fluent', themeName: 'Border City - Fluent', src: 'variants/fluent.css' },
+  { name: 'material', themeName: 'Border City - Material', src: 'variants/material.css' },
+  { name: 'liquid', themeName: 'Border City - Liquid', src: 'variants/liquid.css' },
+];
+const baseManifest = JSON.parse(readFileSync(join(OUT, 'manifest.json'), 'utf8'));
+for (const v of VARIANTS) rmSync(join(OUT, 'variants', v.name), { recursive: true, force: true }); // stale nested outputs; sources are the .css files above them
+for (const v of VARIANTS) {
+  const layer = readFileSync(join(OUT, v.src), 'utf8');
+  const variantOut = [themeOut, '/* Variant: ' + v.name + ' (web-component token layer) */', layer].join('\n');
+  const vo = (variantOut.match(/\{/g) || []).length;
+  const vc = (variantOut.match(/\}/g) || []).length;
+  if (vo !== vc) die('variant ' + v.name + ' brace imbalance ' + vo + ' vs ' + vc);
+  const vdir = join(ROOT, 'border-city-' + v.name); // sibling theme dir: shows as its own theme
+  mkdirSync(vdir, { recursive: true });
+  writeFileSync(join(vdir, 'theme.css'), variantOut);
+  writeFileSync(join(vdir, 'manifest.json'), JSON.stringify({ ...baseManifest, name: v.themeName }, null, 2) + '\n');
+  console.log('variant ' + v.name + ' bytes: ' + variantOut.length);
+}
 console.log('BUILD OK');

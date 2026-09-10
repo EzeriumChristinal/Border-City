@@ -10,6 +10,10 @@ lists, tables, callouts, code blocks, checkboxes, and embeds.
 
 - `border-city/`: the merged theme. `theme.css` is built, never hand-edited.
   `build.mjs` regenerates it from the vendored sources below.
+- `border-city-fluent/`, `border-city-material/`, `border-city-liquid/`:
+  built variant themes (Fluent 2, Material M3, liquid-glass tokens).
+  Copy any/all folders into `<vault>/.obsidian/themes/`; each appears
+  as its own theme.
 - `obsidian-velocity-master/`: upstream Velocity source (Floodlight).
 - `obsidian-border-main/`: upstream Border source (Akifyss).
 - `AGENTS.md`: working rules for agents (rebuild, edit policy, tradeoffs).
