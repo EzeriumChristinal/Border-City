@@ -1,9 +1,0 @@
-Prune dead Border toggles, snapshot var check, untrack build outputs
-
-- Drop 16 Editor settings with no CSS behind them (focus mode,
-  hover indicator, grid pattern, alt-checkbox switch)
-- Restore img-darken rules so the kept toggle does something
-- Anchor Border slices on section markers instead of line numbers
-- Fail the build on new undefined vars (KNOWN_MISSING snapshot)
-- Add npm run check as a rebuild-and-diff gate
-- Git-ignore src/, dist/, and emitted variant themes
