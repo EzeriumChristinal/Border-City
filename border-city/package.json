@@ -1,0 +1,12 @@
+{
+	"name": "border-city",
+	"private": true,
+	"version": "1.0.0",
+	"description": "Obsidian theme: Velocity chrome + Border markdown",
+	"scripts": {
+		"build": "node build.mjs"
+	},
+	"devDependencies": {
+		"sass": "^1.104.0"
+	}
+}
