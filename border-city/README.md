@@ -8,22 +8,24 @@ Border markdown (headings, lists, tables, callouts, code, checkboxes, embeds).
 - `theme.css`: built artifact. Install this folder as an Obsidian theme.
 - `build.mjs`: the merge. Copies Velocity `src/`, drops markdown/integration
   modules, applies patches, compiles chrome with Sass, appends Border markdown
-  slices + pruned Style Settings. Asserts fail the build if upstream line
-  numbers drift.
-- `src/`: filtered Velocity tree (generated, committed for inspection).
-- `dist/`: intermediates: `chrome.css`, `bridge.css`, `border-markdown.css`,
-  `velocity-settings.css`, `border-settings.css`.
+  slices + pruned Style Settings. Marker asserts fail the build if upstream
+  sections move or rename.
+- `src/`, `dist/`: generated intermediates (git-ignored, rebuild to inspect).
 
 ## Rebuild
 
 Needs a Sass binary (`npm install` inside `border-city/`, or PATH `sass`):
 
 ```sh
-npm run build
+npm run build   # regenerate theme.css + sibling variants
+npm run check   # rebuild + fail if tracked outputs differ (CI gate)
 ```
 
-Build prints a var check. Remaining MISSING entries are Obsidian builtins or
-vars upstream Velocity itself never defined (verified against its `theme.css`).
+Build prints a var check backed by a snapshot in `build.mjs`
+(`KNOWN_MISSING`): new undefined vars fail the build — bridge them in
+`dist/bridge.css`, drop the rule using them, or allowlist proven builtins.
+Remaining entries are Obsidian builtins or vars upstream Velocity itself
+never defines (its own `theme.css` lacks them too).
 
 ## What was cut
 
@@ -34,7 +36,9 @@ font embed (falls back to Inter/system stack), 15 dead Style Settings toggles.
 Border: workspace/backgrounds/layout/tabs/autohide (~2700 lines), Appearance
 light+dark color systems (~1900 lines settings + ~300 lines vars — Velocity owns
 color now), Components/Mobile/Plugin settings, presets (35 JSON), alt
-checkboxes, icon/pdf/mobile/plugin sections.
+checkboxes, icon/pdf/mobile/plugin sections, plus 16 dead Editor toggles
+(focus mode, hover indicator, grid pattern, alt-checkbox switch) whose CSS
+never shipped — pruned at build so no toggle is dead.
 
 Two-var `dist/bridge.css` keeps Border rules that referenced dropped systems.
 
@@ -43,8 +47,9 @@ Two-var `dist/bridge.css` keeps Border rules that referenced dropped systems.
 `npm run build` also emits three separate installable themes as siblings
 of this folder (`border-city-fluent/`, `border-city-material/`,
 `border-city-liquid/`, each `theme.css` = base + one token layer,
-`manifest.json` generated with its own name). Copy all four folders into
-`<vault>/.obsidian/themes/` and each shows as its own theme:
+`manifest.json` generated with its own name). They are build outputs
+(git-ignored, regenerated every build), not sources. Copy all four folders
+into `<vault>/.obsidian/themes/` and each shows as its own theme:
 
 - `fluent/` — Fluent 2 web-component tokens (`@fluentui/web-components`):
   Segoe UI, 4px controls, flat depth, `#0f6cbd` / `#479ef5` accent.
@@ -66,5 +71,4 @@ untouched in all three (Border owns it).
 - Bold renders red, italics orange (Border markdown choice, wins by order).
 - No Bases/Canvas/Calendar/Omnisearch/Todoist skinning (unstyled plugins fall
   back to Obsidian default).
-- No Border presets; Border Editor settings block kept whole, so a few toggles
-  (focus mode, hover indicator, grid pattern) have no CSS behind them.
+- No Border presets (upstream `presets/` dropped).

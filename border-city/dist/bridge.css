@@ -1,5 +1,0 @@
-/* Border City bridge */
-:root {
-  --divider-color: var(--background-modifier-border);
-  --background-modifier-border-hover: color-mix(in srgb, var(--color-accent-1) 30%, transparent);
-}

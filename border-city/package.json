@@ -4,7 +4,8 @@
 	"version": "1.0.0",
 	"description": "Obsidian theme: Velocity chrome + Border markdown",
 	"scripts": {
-		"build": "node build.mjs"
+		"build": "node build.mjs",
+		"check": "node build.mjs && git diff --exit-code -- theme.css ../border-city-fluent ../border-city-material ../border-city-liquid"
 	},
 	"devDependencies": {
 		"sass": "^1.104.0"

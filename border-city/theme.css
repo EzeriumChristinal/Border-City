@@ -1351,6 +1351,20 @@ body {
     margin-left: auto !important;
     margin-right: auto !important;
 }
+
+/*  image hover effect */
+
+.theme-dark.img-darken .markdown-preview-view img,
+.theme-dark.img-darken .markdown-source-view img {
+    opacity: 0.75;
+    transition: opacity var(--anim-duration-fast) linear;
+}
+
+.theme-dark.img-darken .markdown-preview-view img:hover,
+.theme-dark.img-darken .markdown-source-view img:hover {
+    opacity: 1;
+    transition: opacity var(--anim-duration-fast) linear;
+}
 /* @settings
 name: Velocity - Quick Settings
 id: obsidian-velocity
@@ -1586,113 +1600,10 @@ settings:
         type: info-text
         markdown: true
 */
-/* @settings
 
 name: Editor
 id: Editor
 settings:
-    - 
-        id: line-emphasis
-        title: Focus indicator
-        title.zh: 焦点指示器
-        type: heading
-        collapsed: ture
-        level: 3
-    - 
-        id: line-hover-indicator-info
-        description: "Display a vertical line indicator before focus line"
-        description.zh: "在焦点行前显示一个竖线指示器"
-        type: info-text
-        markdown: true
-    - 
-        id: line-hover-indicator
-        title: Enable Focus indicator
-        title.zh: 启用 焦点指示器
-        type: class-toggle
-    - 
-        id: focus-indicator-list-level
-        title: indicate list level
-        title.zh: 指示列表层级
-        type: class-toggle
-    - 
-        id: focus-indicator-codeblock-line-number
-        title: indicate codeblock line number
-        title.zh: 指示代码块行号
-        type: class-toggle
-    - 
-		id: hover-indicator-color
-		title: Customize indicator color
-        title.zh: 自定义指示器的颜色
-		type: variable-themed-color
-		opacity: true
-		format: hex
-		default-light: '#'
-		default-dark: '#'
-    - 
-        id: border-focus-mode-heading
-        title: Focus mode
-        title.zh: 专注模式
-        type: heading
-        collapsed: ture
-        level: 3
-    - 
-        id: border-focus-mode-info
-        description: "Highlight active line"
-        description.zh: "突出显示当前活动行"
-        type: info-text
-        markdown: true
-    - 
-        id: border-focus-mode
-        title: Enable focus mode
-        title.zh: 启用 专注模式
-        type: class-toggle
-    - 
-		id: line-active-bg
-		title: Active line background color
-        title.zh: 活动行背景色
-		type: variable-themed-color
-		opacity: true
-		format: hex
-		default-light: '#'
-		default-dark: '#'
-    - 
-        id: line-normal-opacity
-        title: Normal line opacity
-        title.zh: 普通行透明度
-        type: variable-number-slider
-        default: 0.5
-        min: 0.05
-        max: 1
-        step: 0.05
-    - 
-        id: Editor-background-pattern
-        title: Editor background pattern
-        title.zh: 编辑器背景图案
-        type: heading
-        collapsed: true
-        level: 3
-    - 
-        id: editor-grid-background-pattren
-        title: Enable grid background pattern
-        title.zh: 启用 网格背景图案
-        type: class-toggle
-    - 
-		id: grid-background-pattern-color
-		title: Customize grid background pattern color
-        title.zh: 自定义 网格背景图案颜色
-		type: variable-themed-color
-		opacity: true
-		format: hex
-		default-light: '#'
-		default-dark: '#'
-    - 
-        id: grid-background-pattern-size
-        title: Custom grid background pattern size
-        title.zh: 自定义 网格背景图案尺寸
-        description: Accepts any CSS background-size value
-        description.zh: 接受任何 CSS background-size 值
-        type: variable-text
-        default: 36px
     - 
         id: Headings
         title: Headings
@@ -2900,12 +2811,6 @@ settings:
         collapsed: true
         level: 3
     -
-        id: disable-alternative-checkboxes
-        title: Disable Alternative Checkboxes
-        title.zh: 禁用备用复选框
-        description: Disable this if you are using your own implementation via a CSS Snippet.
-        type: class-toggle
-    -
         id: checkbox-radius
         title: checkbox radius
         title.zh: 复选框 圆角半径
@@ -2961,3 +2866,5 @@ settings:
 
 
 */
+
+/* @settings

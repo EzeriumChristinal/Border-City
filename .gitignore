@@ -1,3 +1,7 @@
 node_modules/
 *.log
 .DS_Store
+# build-emitted variant themes (npm run build regenerates from border-city/)
+border-city-fluent/
+border-city-liquid/
+border-city-material/

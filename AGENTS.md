@@ -11,15 +11,16 @@ Upstream sources are vendored read-only. Never edit them in place.
   Read-only. `theme.css` (9193 lines) is truth; `presets/` dropped downstream.
 - `border-city/`: the merge. Only dir agents edit.
   - `build.mjs`: the merge script. Edit this, not outputs.
-  - `src/`: filtered Velocity tree. Generated. Never hand-edit.
+  - `src/`: filtered Velocity tree. Generated, git-ignored. Never hand-edit.
   - `dist/`: intermediates (`chrome.css`, `bridge.css`,
-    `border-markdown.css`, settings slices). Generated. Never hand-edit.
+    `border-markdown.css`, settings slices). Generated, git-ignored.
+  Never hand-edit.
   - `theme.css`: shipped artifact. Generated. Never hand-edit.
   - `variants/*.css`: hand-written variant token layers (fluent, material,
     liquid). Only hand-written sources besides `build.mjs`.
 - `border-city-fluent/`, `border-city-material/`, `border-city-liquid/`:
-  generated sibling themes (each `manifest.json` + `theme.css`).
-  Generated. Never hand-edit.
+  emitted sibling themes (each `manifest.json` + `theme.css`).
+  Generated, git-ignored. Never hand-edit.
 
 ## Rebuild
 
@@ -38,13 +39,18 @@ older than its `src/` + `build.mjs`.
   exclusion, DROP_IDS, patch ranges, or Border slice ranges.
 - Patch ranges assert first-line content before deleting. Upstream file changed
   underneath = build fails. Re-map ranges by hand, never widen blindly.
-- Border slices are 1-based inclusive line ranges into
-  `obsidian-border-main/theme.css`. Comment the section name next to ranges.
+- Border slices are marker-anchored into `obsidian-border-main/theme.css`
+  (section headers, `name:` blocks). Upstream rename/move = build fails.
+  Re-map markers by hand, never widen blindly. Dead toggles (setting kept,
+  CSS dropped) go in BORDER_DROP_IDS, never by widening a slice to fit.
 - `dist/bridge.css` pins vars kept Border rules need that chrome and Obsidian
   omit. Prefer reusing a chrome-defined var over hardcoding.
-- Var check prints MISSING each build. New MISSING tied to a dropped region =
-  bridge it or drop the rule using it. Builtins and upstream-undefined vars
-  stay as-is.
+- Var check gates on a KNOWN_MISSING snapshot (builtins + vars upstream
+  Velocity never defines — its own `theme.css` lacks them too, so a
+  "(dropped border region)" tag alone never justifies a bridge). New MISSING
+  = build fails: bridge it, drop the rule using it, or allowlist a proven
+  builtin. `npm run check` doubles as CI gate (tracked outputs must match
+  a fresh build).
 - Keep both Style Settings id namespaces (`obsidian-velocity*`, Border
   `Editor`) collision-free. The settings-panel SCSS hooks on those ids.
 

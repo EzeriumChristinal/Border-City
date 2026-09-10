@@ -118,11 +118,68 @@ for (const b of blocks) {
 const veloSettings = header.concat(kept.flat()).join('\n');
 writeFileSync(join(DIST, 'velocity-settings.css'), veloSettings);
 console.log('velocity settings: kept ' + kept.length + ', dropped: ' + droppedNames.join(','));
-// ---- Border slices ----
+// ---- Border slices (marker-anchored; build fails if upstream renames a marker) ----
 const ball = readFileSync(join(BORDER, 'theme.css'), 'utf8').split('\n');
 const take = (ranges) => ranges.flatMap((r) => ball.slice(r[0] - 1, r[1])).join('\n');
-const borderSettings = take([[1, 12], [2230, 3605]]);
-const borderCss = take([[6898, 6929], [6930, 7626], [7805, 7958], [8202, 8663]]);
+const at = (marker, what) => {
+  const hits = [];
+  ball.forEach((l, i) => { if (l.includes(marker)) hits.push(i + 1); });
+  if (hits.length !== 1) die('border marker [' + marker + '] for ' + what + ': ' + hits.length + ' hits');
+  return hits[0];
+};
+const namedLine = (name) => { // unique `name: X` settings block; 1-based
+  const hits = [];
+  ball.forEach((l, i) => { if (l.trim() === 'name: ' + name) hits.push(i + 1); });
+  if (hits.length !== 1) die('border settings block [' + name + ']: ' + hits.length + ' hits');
+  return hits[0];
+};
+const blockStart = (nameLine) => { // walk back to enclosing /* @settings
+  let i = nameLine;
+  while (i > 1 && !ball[i - 2].includes('/* @settings')) i--;
+  if (i <= 1) die('no @settings above line ' + nameLine);
+  return i;
+};
+const headEnd = ball.findIndex((l) => l.trim() === '*/') + 1; // Theme Info settings header
+if (ball[0].includes('@settings') === false || headEnd < 2) die('border settings header not found');
+const edStart = blockStart(namedLine('Editor')), edEnd = blockStart(namedLine('Mobile')) - 1; // Editor block, stops before Mobile
+const titleAt = at('/* ====== title style ====== */', 'titles/links/tags');
+const emphAt = at('/* ====== line emphasis ====== */', 'highlight/hover-indicator (dropped)');
+const boldAt = at('/* ====== Bold ====== */', 'bold/checkboxes');
+const altAt = at('/* Alternate Checkboxes */', 'alt checkboxes (dropped)');
+let imgEnd = at('/* ====== pdf ====== */', 'pdf/icon (dropped)') - 1;
+while (ball[imgEnd - 1].trim() === '') imgEnd--; // trailing blanks: end on img-darken rules, not pdf header
+if (ball[imgEnd - 1] !== '}') die('border images slice end not a rule close: line ' + imgEnd);
+const borderSettingsRaw = take([[1, headEnd], [edStart, edEnd]]); // settings header + Editor settings block
+const borderCss = take([[at('/* Paragraphs */', 'paragraphs/line-height'), titleAt - 1],
+  [titleAt, emphAt - 1],
+  [boldAt, altAt - 1],
+  [at('/* ====== Callout ====== */', 'callouts/quotes/tables/images'), imgEnd]]);
+// ---- Border settings prune: toggles with no CSS behind kept slices ----
+const BORDER_DROP_IDS = ['line-emphasis', 'line-hover-indicator-info', 'line-hover-indicator',
+  'focus-indicator-list-level', 'focus-indicator-codeblock-line-number', 'hover-indicator-color',
+  'border-focus-mode-heading', 'border-focus-mode-info', 'border-focus-mode',
+  'line-active-bg', 'line-normal-opacity', 'Editor-background-pattern',
+  'editor-grid-background-pattren', 'grid-background-pattern-color', 'grid-background-pattern-size',
+  'disable-alternative-checkboxes']; // alt-checkbox CSS dropped, kept base rules never read the class
+const blines = borderSettingsRaw.split('\n');
+const bheader = []; const bblocks = []; let bcur = null; // header runs through Editor `settings:`
+let bstart = 0;
+blines.forEach((ln, i) => { if (ln.trim() === 'settings:') bstart = i + 1; });
+for (const ln of blines.slice(0, bstart)) bheader.push(ln);
+for (const ln of blines.slice(bstart)) {
+  if (/^\s*-\s*$/.test(ln)) { if (bcur) bblocks.push(bcur); bcur = [ln]; }
+  else if (bcur) bcur.push(ln); else bheader.push(ln);
+}
+if (bcur) bblocks.push(bcur);
+const bkept = []; const bdropped = [];
+for (const b of bblocks) {
+  const ids = b.map((l) => (l.match(/id:\s*(\S+)/) || [])[1]).filter(Boolean);
+  if (ids.length !== 1) die('border settings block with ' + ids.length + ' ids: ' + ids.join(','));
+  if (BORDER_DROP_IDS.includes(ids[0])) bdropped.push(ids[0]); else bkept.push(b);
+}
+for (const id of BORDER_DROP_IDS) if (!bdropped.includes(id)) die('border setting not found: ' + id);
+const borderSettings = bheader.concat(bkept.flat()).join('\n');
+console.log('border settings: kept ' + bkept.length + ', dropped: ' + bdropped.join(','));
 writeFileSync(join(DIST, 'border-markdown.css'), borderCss);
 writeFileSync(join(DIST, 'border-settings.css'), borderSettings);
 console.log('border settings lines: ' + borderSettings.split('\n').length + ', css lines: ' + borderCss.split('\n').length);
@@ -149,8 +206,25 @@ const reD = /(--[A-Za-z0-9-_]+)\s*:/g;
 while ((m2 = reD.exec(clean)) !== null) defined.add(m2[1]);
 const fullBorder = readFileSync(join(BORDER, 'theme.css'), 'utf8');
 const missing = [...used].filter((v) => !defined.has(v)).sort();
+// Snapshot: every MISSING verified as Obsidian builtin or var upstream Velocity
+// itself never defines (its theme.css lacks them too). New MISSING tied to a
+// dropped region = bridge it in dist/bridge.css or drop the rule using it.
+const KNOWN_MISSING = ['--anim-duration-moderate', '--anim-motion-delay', '--anim-motion-smooth',
+  '--anim-motion-swing', '--blur-m', '--blur-s', '--color-accent', '--color-accent-5',
+  '--dropdown-background-hover', '--font-interface', '--font-smaller', '--font-smallest',
+  '--font-text-size', '--font-ui-large', '--icon-l', '--icon-m', '--icon-s',
+  '--icon-s-stroke-width', '--interactive-accent-hsl', '--list-marker-color-collapsed',
+  '--list-marker-color-hover', '--nav-item-background-selected', '--p-spacing',
+  '--safe-area-inset-bottom', '--size-4-3', '--size-4-6', '--status-bar-border-color',
+  '--text-accent-hover', '--text-color', '--text-on-accent', '--text-success',
+  '--touch-radius-l', '--touch-radius-s', '--touch-radius-xs', '--touch-radius-xxs',
+  '--touch-size-l', '--touch-size-xxs'];
 console.log('border vars used: ' + used.size + ', missing: ' + missing.length);
-for (const v of missing) console.log('  MISSING ' + v + (fullBorder.includes(v + ':') ? ' (in dropped border region)' : ' (builtin?)'));
+for (const v of missing) console.log('  MISSING ' + v + (fullBorder.includes(v + ':') ? ' (also in dropped border region)' : ' (builtin?)'));
+const unknown = missing.filter((v) => !KNOWN_MISSING.includes(v));
+if (unknown.length) die('new MISSING vars, bridge/drop/allowlist: ' + unknown.join(', '));
+const stale = KNOWN_MISSING.filter((v) => !missing.includes(v));
+if (stale.length) console.log('var check: resolved since snapshot: ' + stale.join(','));
 // ---- assemble ----
 const themeOut = ['/* Border City: Velocity chrome + Border markdown. Built by build.mjs. */', chrome, bridge, borderCss, veloSettings, borderSettings].join('\n');
 const open = (themeOut.match(/\{/g) || []).length;
@@ -159,6 +233,8 @@ if (open !== close) die('brace imbalance ' + open + ' vs ' + close);
 writeFileSync(join(OUT, 'theme.css'), themeOut);
 console.log('theme.css bytes: ' + themeOut.length + ', braces: ' + open);
 // ---- variants: separate installable themes, base + one token layer ----
+// Full copies required: Obsidian lists one theme per folder, so each variant
+// ships its own theme.css (base + ~2KB layer). Layers stay minimal instead.
 const VARIANTS = [
   { name: 'fluent', themeName: 'Border City - Fluent', src: 'variants/fluent.css' },
   { name: 'material', themeName: 'Border City - Material', src: 'variants/material.css' },
