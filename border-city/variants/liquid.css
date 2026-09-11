@@ -3,22 +3,15 @@
  * (github.com/naughtyduk/liquidGL: real-time liquid-glass
  * displacement/specular). Obsidian themes ship CSS only, no WebGL,
  * so chrome gets the glass half: boosted backdrop blur + saturate,
- * translucent surfaces, inset specular edge. Markdown stays opaque
- * for readability. Where backdrop-filter missing, solid fallback.
+ * translucent surfaces, inset specular edge, hairline light border,
+ * squircle sheets. Markdown stays opaque for readability.
+ * Where backdrop-filter missing, solid fallback.
  */
-:root {
-  --liquid-blur-s: 16px;
-  --liquid-blur-m: 24px;
-  --liquid-blur-l: 32px;
-  --liquid-saturate: 1.6;
-  --liquid-specular: inset 0 1px 1px 0 rgba(255, 255, 255, 0.35), inset 0 -1px 1px 0 rgba(255, 255, 255, 0.12);
-}
-
 body {
   --corner-smoothing: 80%;
-  --blur-radius-s: var(--liquid-blur-s);
-  --blur-radius-m: var(--liquid-blur-m);
-  --blur-saturation: var(--liquid-saturate);
+  --blur-radius-s: 16px;
+  --blur-radius-m: 24px;
+  --blur-saturation: 1.6;
   /* Full squircle sheet look */
   --radius-xs: 8px;
   --radius-s: 12px;
@@ -44,20 +37,36 @@ body {
   --status-bar-background: color-mix(in srgb, var(--background-secondary) 60%, transparent);
 }
 
-/* Glass overlays: blur + saturate + specular edge */
+/* Glass overlays: blur + saturate + specular edge + hairline.
+ * Scoped to overlays + leaf containers only. Tab strip, ribbon and
+ * titlebar stay solid: blurring them washed tabs out (blur read as
+ * sitting over tab text) with 55% transparent surfaces. */
 .modal, .prompt, .menu, .popover, .suggestion-container, .status-bar {
-  backdrop-filter: blur(var(--liquid-blur-m)) saturate(var(--liquid-saturate));
-  -webkit-backdrop-filter: blur(var(--liquid-blur-m)) saturate(var(--liquid-saturate));
-  box-shadow: var(--liquid-specular), var(--menu-shadow, 0 8px 32px rgba(0, 0, 0, 0.25));
+  backdrop-filter: blur(var(--blur-radius-m)) saturate(var(--blur-saturation));
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.35), inset 0 -1px 1px 0 rgba(255, 255, 255, 0.12), var(--menu-shadow, 0 8px 32px rgba(0, 0, 0, 0.25));
 }
 body:not(.is-mobile) .workspace-tab-container,
 .mod-sidedock .workspace-leaf {
-  backdrop-filter: blur(var(--liquid-blur-s)) saturate(var(--liquid-saturate));
-  -webkit-backdrop-filter: blur(var(--liquid-blur-s)) saturate(var(--liquid-saturate));
+  backdrop-filter: blur(var(--blur-radius-s)) saturate(var(--blur-saturation));
+}
+/* Opaque tab fade + dimmed status bar look like blocks over glass. Kill both. */
+body:not(.is-mobile) .mod-root .workspace-tabs:not(.mod-stacked) .workspace-tab-header.is-active:hover .workspace-tab-header-inner-close-button {
+  background: transparent;
+}
+.status-bar {
+  filter: none;
+}
+/* Liquid controls: squircle + top specular catchlight */
+button:not(.clickable-icon),
+input[type="text"], input[type="search"], select {
+  border-radius: var(--radius-m);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.25);
 }
 
 /* No-blur fallback: solid surfaces */
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+@supports not (backdrop-filter: blur(1px)) {
   .theme-light {
     --background-primary: var(--color-base-05);
     --background-secondary: var(--color-base-10);

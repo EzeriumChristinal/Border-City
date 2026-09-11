@@ -1,23 +1,12 @@
 /* Border City variant: Material.
- * Maps Material Web M3 tokens (github.com/material-components/material-web,
- * @material/web: --md-sys-color-*, --md-sys-shape-*, --md-sys-typescale-*)
- * onto Border City chrome vars. Obsidian themes ship CSS only, so no JS
- * components bundled: this pins baseline-M3 color/shape/type values plus
- * state-layer hover and 4 shape rules (FAB pill, toggles, sheets).
+ * Baseline-M3 values (github.com/material-components/material-web, @material/web)
+ * on Border City chrome. Obsidian ships CSS only: pins M3 color/shape/type
+ * plus M3 behaviors — pill buttons, outline strokes, 3px tab indicator,
+ * 52x32 pill switch, tonal FAB, state-layer hover, M3 elevation on sheets.
  * Markdown render untouched (Border owns it).
  */
-:root {
-  --md-sys-color-primary-light: #6750a4;
-  --md-sys-color-primary-dark: #d0bcff;
-  --md-sys-color-surface-light: #fef7ff;
-  --md-sys-color-surface-container-light: #f3edf7;
-  --md-sys-color-surface-dark: #141218;
-  --md-sys-color-surface-container-dark: #1d1b20;
-  --md-sys-font: "Roboto", system-ui, sans-serif;
-}
-
 body {
-  --font-interface-theme: var(--md-sys-font);
+  --font-interface-theme: "Roboto", system-ui, sans-serif;
   --corner-smoothing: 50%;
   /* M3 shape scale: cards 12-16, sheets 28, full pill via 999px below */
   --radius-xs: 4px;
@@ -41,35 +30,61 @@ body {
 }
 
 .theme-light {
-  --color-accent: var(--md-sys-color-primary-light);
-  --interactive-accent: var(--md-sys-color-primary-light);
+  --color-accent: #6750a4;
+  --interactive-accent: #6750a4;
   --interactive-accent-hover: #5b45a0;
-  --background-primary: var(--md-sys-color-surface-light);
-  --background-secondary: var(--md-sys-color-surface-container-light);
+  --background-primary: #fef7ff;
+  --background-secondary: #f3edf7;
   /* M3 state layer: 8% primary hover */
-  --background-modifier-hover: color-mix(in srgb, var(--md-sys-color-primary-light) 8%, transparent);
+  --background-modifier-hover: color-mix(in srgb, #6750a4 8%, transparent);
+  /* M3 outline variant */
+  --background-modifier-border: color-mix(in srgb, #6750a4 30%, transparent);
 }
 
 .theme-dark {
-  --color-accent: var(--md-sys-color-primary-dark);
-  --interactive-accent: var(--md-sys-color-primary-dark);
+  --color-accent: #d0bcff;
+  --interactive-accent: #d0bcff;
   --interactive-accent-hover: #dbc8ff;
-  --background-primary: var(--md-sys-color-surface-dark);
-  --background-secondary: var(--md-sys-color-surface-container-dark);
-  --background-modifier-hover: color-mix(in srgb, var(--md-sys-color-primary-dark) 8%, transparent);
+  --background-primary: #141218;
+  --background-secondary: #1d1b20;
+  --background-modifier-hover: color-mix(in srgb, #d0bcff 8%, transparent);
+  --background-modifier-border: color-mix(in srgb, #d0bcff 30%, transparent);
 }
 
-/* M3 FAB: 16px rounded, tonal container */
+/* M3 buttons: 40px pill, tonal hover via state layer */
+button:not(.clickable-icon) {
+  min-height: 40px;
+  border-radius: 999px;
+}
+input[type="text"], input[type="search"], select {
+  min-height: 40px;
+  border-radius: var(--radius-m);
+  border: 1px solid var(--background-modifier-border);
+}
+/* M3 tabs: 3px active indicator */
+body:not(.is-mobile) .mod-root .workspace-tabs:not(.mod-stacked) .workspace-tab-header.is-active > .workspace-tab-header-inner {
+  box-shadow: inset 0 -3px 0 var(--interactive-accent);
+}
+/* Opaque tab fade reads as block over M3 surfaces. Kill it. */
+body:not(.is-mobile) .mod-root .workspace-tabs:not(.mod-stacked) .workspace-tab-header.is-active:hover .workspace-tab-header-inner-close-button {
+  background: transparent;
+}
+/* M3 FAB: rounded tonal container */
 body:not(.is-mobile) .workspace-leaf-content[data-type="markdown"] .view-actions .clickable-icon.view-action:not(:last-child, .mod-bookmark) {
   border-radius: 16px;
+  background-color: var(--background-modifier-hover);
 }
 /* M3 pills: toggles, tags, status bar */
 .checkbox-container, .status-bar, .tag, .pill, .multi-select-pill {
   border-radius: 999px;
 }
+/* M3 sheets: 16-28px corners, tonal elevation */
 .menu, .suggestion-container {
   border-radius: var(--radius-ml);
+  border: 1px solid var(--background-modifier-border);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
 }
 .modal, .prompt {
   border-radius: var(--radius-xl);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
 }

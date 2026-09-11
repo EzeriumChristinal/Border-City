@@ -1,25 +1,16 @@
 /* Border City variant: Fluent.
- * Maps Microsoft Fluent 2 web-component tokens
- * (github.com/microsoft/fluentui, @fluentui/web-components)
- * onto Border City chrome vars. Obsidian themes ship CSS only,
- * so no JS components bundled: this pins the token values the
- * Fluent components would emit (accent, neutral layers, corner
- * radius, depth shadow, Segoe UI stack) plus 4 shape rules.
+ * Microsoft Fluent 2 (github.com/microsoft/fluentui, @fluentui/web-components)
+ * on Border City chrome. Obsidian ships CSS only: pins token values Fluent
+ * components would emit plus Fluent behaviors — small rectangular corners,
+ * 1px neutral strokes, flat controls, depth only on flyouts, 2px focus
+ * rect, underline active tab, 40x20 switch, acrylic overlays.
  * Markdown render untouched (Border owns it).
  */
-:root {
-  --fluent-accent-light: #0f6cbd;
-  --fluent-accent-dark: #479ef5;
-  --fluent-neutral-light: #f3f2f1;
-  --fluent-neutral-dark: #1b1a19;
-  --fluent-font: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
-}
-
 body {
-  --font-interface-theme: var(--fluent-font);
+  --font-interface-theme: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
   --corner-smoothing: 30%;
   --anim-duration-fast: 100ms;
-  /* Fluent control corner radius: small/rectangular */
+  /* Fluent corner radius: small/rectangular */
   --radius-xs: 2px;
   --radius-s: 4px;
   --radius-sm: 6px;
@@ -30,36 +21,60 @@ body {
   --radius-xxl: 20px;
   --radius-prompt: 20px;
   --radius-settings: 20px;
-  /* Flat Fluent depth; acrylic blur reserved for overlays */
+  /* Acrylic blur reserved for overlays; surfaces stay solid */
   --blur-radius-s: 16px;
   --blur-radius-m: 30px;
   --blur-saturation: 1.25;
+  /* Fluent switch: 40x20 track */
+  --toggle-width: 40px;
+  --toggle-border-width: 1px;
+  --toggle-thumb-width: 10px;
+  --toggle-thumb-height: 10px;
+  --toggle-s-width: 36px;
+  --toggle-s-thumb-width: 9px;
+  --toggle-s-thumb-height: 9px;
 }
 
 .theme-light {
-  --color-accent: var(--fluent-accent-light);
-  --interactive-accent: var(--fluent-accent-light);
+  --color-accent: #0f6cbd;
+  --interactive-accent: #0f6cbd;
   --interactive-accent-hover: #115ea3;
-  --background-secondary: var(--fluent-neutral-light);
+  --background-secondary: #f3f2f1;
 }
 
 .theme-dark {
-  --color-accent: var(--fluent-accent-dark);
-  --interactive-accent: var(--fluent-accent-dark);
+  --color-accent: #479ef5;
+  --interactive-accent: #479ef5;
   --interactive-accent-hover: #5aa9ff;
-  --background-secondary: var(--fluent-neutral-dark);
+  --background-secondary: #1b1a19;
 }
 
-/* Fluent controls: 32px box, 4px corners */
+/* Fluent controls: 32px box, 4px corners, 1px neutral stroke, flat */
 button:not(.clickable-icon),
 input[type="text"], input[type="search"], select {
   min-height: 32px;
   border-radius: var(--radius-s);
+  border: 1px solid var(--background-modifier-border);
+  box-shadow: none;
 }
+/* Fluent focus: 2px accent rect */
+button:not(.clickable-icon):focus-visible,
+input:focus-visible, select:focus-visible, a:focus-visible {
+  outline: 2px solid var(--interactive-accent);
+  outline-offset: 1px;
+}
+/* Fluent pivot: underline active tab */
+body:not(.is-mobile) .mod-root .workspace-tabs:not(.mod-stacked) .workspace-tab-header.is-active > .workspace-tab-header-inner {
+  box-shadow: inset 0 -2px 0 var(--interactive-accent);
+}
+/* Fluent flyouts: 8px corners, stroke, depth-16 acrylic */
 .menu, .popover, .suggestion-container {
   border-radius: var(--radius-m);
+  border: 1px solid var(--background-modifier-border);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.14);
   backdrop-filter: blur(var(--blur-radius-s)) saturate(var(--blur-saturation));
 }
 .modal, .prompt {
   border-radius: var(--radius-xl);
+  border: 1px solid var(--background-modifier-border);
 }

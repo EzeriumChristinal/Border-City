@@ -1,0 +1,77 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Border City screenshots</title>
+<link id="t" rel="stylesheet" href="../theme.css">
+<style>
+  body{margin:0;padding:24px;font-family:var(--font-interface-theme,system-ui)}
+  *{animation:none !important;transition:none !important;caret-color:transparent !important}
+  section{display:block;max-width:1100px;margin:0 auto 48px;background:var(--background-primary);color:var(--text-normal);padding:24px;border-radius:12px}
+  section h2.fixture-label{font:600 12px/1 system-ui;color:var(--text-faint);text-transform:uppercase;letter-spacing:.1em;margin:0 0 16px}
+</style>
+<body class="theme-light">
+<!-- case tabs: chrome tab bar + status bar -->
+<section id="case-tabs"><h2 class="fixture-label">tabs</h2>
+  <div class="workspace-tabs mod-root">
+    <div class="workspace-tab-header-container"><div class="workspace-tab-header-container-inner">
+      <div class="workspace-tab-header is-active"><div class="workspace-tab-header-inner"><div class="workspace-tab-header-inner-icon">📄</div><div class="workspace-tab-header-inner-title">Welcome</div><div class="workspace-tab-header-inner-close-button">✕</div></div></div>
+      <div class="workspace-tab-header"><div class="workspace-tab-header-inner"><div class="workspace-tab-header-inner-icon">📄</div><div class="workspace-tab-header-inner-title">Notes</div><div class="workspace-tab-header-inner-close-button">✕</div></div></div>
+      <div class="workspace-tab-header"><div class="workspace-tab-header-inner"><div class="workspace-tab-header-inner-icon">📄</div><div class="workspace-tab-header-inner-title">Archive</div><div class="workspace-tab-header-inner-close-button">✕</div></div></div>
+      <div class="workspace-tab-header-new-tab"><span class="clickable-icon">＋</span></div>
+    </div></div>
+    <div class="workspace-tab-container"><div class="workspace-leaf"><div class="workspace-leaf-content" data-type="markdown"><div class="view-content">tab body</div></div></div></div>
+  </div>
+  <div class="status-bar"><span class="status-bar-item">main</span><span class="status-bar-item mod-clickable">UTF-8</span><span class="status-bar-item">Ln 1, Col 1</span></div>
+</section>
+<!-- case chrome: sidebar tree + search + settings toggle + modal -->
+<section id="case-side-modal"><h2 class="fixture-label">side-modal</h2>
+  <div class="workspace-split mod-sidedock mod-left-split">
+    <div class="workspace-leaf-content" data-type="file-explorer"><div class="view-content">
+      <div class="nav-header"><div class="nav-buttons-container"><div class="nav-action-button clickable-icon">＋</div></div>
+        <div class="search-input-container"><input type="search" placeholder="Search"></div></div>
+      <div class="nav-files-container">
+        <div class="tree-item"><div class="tree-item-self mod-collapsible is-collapsed"><span class="tree-item-icon collapse-icon">▸</span><span class="tree-item-inner">Notes</span></div></div>
+        <div class="tree-item"><div class="tree-item-self"><span class="tree-item-icon">📄</span><span class="tree-item-inner">Welcome</span></div></div>
+        <div class="tree-item"><div class="tree-item-self has-focus"><span class="tree-item-icon">📄</span><span class="tree-item-inner">Active file</span></div></div>
+      </div>
+    </div></div>
+  </div>
+  <div class="setting-item mod-toggle"><div class="setting-item-info"><div class="setting-item-name">Readable line length</div></div><div class="setting-item-control"><div class="checkbox-container is-enabled"><input type="checkbox" checked></div></div></div>
+  <div class="prompt"><div class="prompt-input-container"><input class="prompt-input" placeholder="Type to search…"></div>
+    <div class="prompt-results"><div class="suggestion-item is-selected"><div class="suggestion-content"><div class="suggestion-title">Welcome</div><div class="suggestion-note">Note</div></div></div><div class="suggestion-item"><div class="suggestion-content"><div class="suggestion-title">Archive</div></div></div></div>
+    <div class="prompt-instructions">↵ open · esc dismiss</div></div>
+  <div class="menu"><div class="menu-item is-selected"><div class="menu-item-icon">✎</div><div class="menu-item-title">Rename</div></div><div class="menu-separator"></div><div class="menu-item"><div class="menu-item-icon">🗑</div><div class="menu-item-title">Delete</div></div></div>
+</section>
+<!-- case markdown prose -->
+<section id="case-prose"><h2 class="fixture-label">prose</h2>
+  <div class="markdown-preview-view markdown-rendered">
+    <h1>Heading one</h1><h2>Heading two</h2><h3>Heading three</h3>
+    <p>Body with <strong>bold must render red</strong>, <em>italics orange</em>, a <a href="#">link</a>, <mark>highlight</mark>, <code>inline code</code>, <s>strike</s>.</p>
+    <ul><li>bullet one</li><li>bullet two<ul><li>nested bullet</li></ul></li></ul>
+    <ol><li>first</li><li>second</li></ol>
+    <blockquote>quote block</blockquote>
+  </div>
+</section>
+<!-- case markdown special: tables/code/callouts/tasks/embed -->
+<section id="case-special"><h2 class="fixture-label">special</h2>
+  <div class="markdown-preview-view markdown-rendered">
+    <table><thead><tr><th>token</th><th>light</th><th>dark</th></tr></thead><tbody><tr><td>accent</td><td>#0f6cbd</td><td>#479ef5</td></tr><tr><td>surface</td><td>#fef7ff</td><td>#141218</td></tr></tbody></table>
+    <pre><code class="language-css">:root {
+  --color-accent: #0f6cbd;
+}</code></pre>
+    <div class="callout" data-callout="note"><div class="callout-title"><div class="callout-icon">✎</div><div class="callout-title-inner">Note</div></div><div class="callout-content"><p>note body</p></div></div>
+    <div class="callout" data-callout="warning"><div class="callout-title"><div class="callout-icon">⚠</div><div class="callout-title-inner">Warning</div></div><div class="callout-content"><p>warning body</p></div></div>
+    <div class="callout" data-callout="tip"><div class="callout-title"><div class="callout-icon">💡</div><div class="callout-title-inner">Tip</div></div><div class="callout-content"><p>tip body</p></div></div>
+    <ul class="contains-task-list">
+      <li class="task-list-item"><input type="checkbox" checked> done task</li>
+      <li class="task-list-item"><input type="checkbox"> open task</li>
+    </ul>
+    <div class="markdown-embed"><div class="markdown-embed-title">Embedded note</div><div class="markdown-embed-content"><p>embed body</p></div></div>
+    <p><span class="tag">#theme</span> <span class="tag">#broken</span></p>
+  </div>
+</section>
+<!-- case slider: Style Settings row -->
+<section id="case-slider"><h2 class="fixture-label">slider</h2>
+  <div class="setting-item mod-slider"><div class="setting-item-info"><div class="setting-item-name">Slider size</div></div><div class="setting-item-control"><input type="range" min="8" max="24" value="16"></div></div>
+</section>
+</body>

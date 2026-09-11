@@ -81,58 +81,67 @@ patch('30_interface/_document-search.scss', [[56, 57]], [[56, '.markdown-rendere
   if (s < 0 || e < 0 || e - s > 25) die('news css block not found');
   writeFileSync(p, delLines(lines, [[s + 1, e + 3]], 'news').join('\n'));
 }
-writeFileSync(join(SRC, 'theme.scss'), [
-'@use "00_elements/__root";', '@use "00_elements/_base";', '@use "00_elements/_custom-icons";', '',
-'@use "10_colors/_dark-colors";', '@use "10_colors/_dark-extra-colors";',
-'@use "10_colors/_light-colors";', '@use "10_colors/_light-extra-colors";', '',
-'@use "30_interface/__interface";', '@use "30_interface/_clickable-icons";',
-'@use "30_interface/_document-search";', '@use "30_interface/_empty-state";',
-'@use "30_interface/_fab-and-header";', '@use "30_interface/_file-tree";',
-'@use "30_interface/_layout";', '@use "30_interface/_nav-header";',
-'@use "30_interface/_sidebar-content";', '@use "30_interface/_status-bar";',
-'@use "30_interface/_tabs";', '@use "30_interface/_titlebar";',
-'@use "30_interface/_style-settings";', '',
-'@use "40_modals/__modals";', '@use "40_modals/_community-modal";',
-'@use "40_modals/_confirmation-modal";', '@use "40_modals/_menu";', '@use "40_modals/_prompt";', '',
-'@use "50_mobile/__mobile";', '',
-].join('\n'));
+{ // view header: drop FAB hacks (translate/order/hidden last-child stacked
+  // every view-action into one floating spot). Plain header row instead.
+  const p = join(SRC, '30_interface/_fab-and-header.scss');
+  const lines = readFileSync(p, 'utf8').split('\n');
+  if (!lines[47].includes('Floating action button')) die('fab block moved: line 48 is not FAB header: ' + lines[47].slice(0, 80));
+  const last = [...lines].reverse().find((l) => l.trim() !== '');
+  if (last !== '}') die('fab file end moved: ' + String(last).slice(0, 80));
+  const head = lines.slice(0, 47).join('\n');
+  writeFileSync(p, head + '\n' + [
+    '// Border City: plain view-actions row (FAB transforms removed).',
+    'body:not(.is-mobile) .workspace-leaf-content[data-type="markdown"] .view-actions {',
+    '  column-gap: 2px;',
+    '  padding: 0;',
+    '  margin: 0;',
+    '  transform: none;',
+    '}',
+    '',
+  ].join('\n'));
+}
+const USES = KEEP_FILES.map((f) => `@use "${f.replace(/\.scss$/, '')}";`);
+// settings-panel styling slots between titlebar and modals, as before
+USES.splice(USES.indexOf('@use "30_interface/_titlebar";') + 1, 0, '@use "30_interface/_style-settings";');
+writeFileSync(join(SRC, 'theme.scss'), USES.join('\n') + '\n');
 console.log('patched + entry written');
 // ---- pruned Velocity settings: drop entries for removed features ----
+const splitBlocks = (lines, isBoundary) => {
+  const header = []; const blocks = []; let cur = null;
+  for (const ln of lines) {
+    if (isBoundary(ln)) { if (cur) blocks.push(cur); cur = [ln]; }
+    else if (cur) cur.push(ln); else header.push(ln);
+  }
+  if (cur) blocks.push(cur);
+  return [header, blocks];
+};
 const DROP_IDS = ['ss-section-news', 'enable-special-text', 'enable-special-code',
   'override-default-font', 'disable-list-styling', 'disable-callout-styling', 'restore-table-scroll',
   'restore-indent-guide', 'disable-naked-embeds', 'disable-title-h1', 'active-line-highlight',
   'hide-bases-header', 'enable-dim-img', 'line-height-normal'];
 const raw = readFileSync(join(VELO, 'src/style-settings.css'), 'utf8').split('\n');
-const header = []; const blocks = []; let cur = null;
-for (const ln of raw) {
-  if (ln === '-') { if (cur) blocks.push(cur); cur = [ln]; } // col-0 only: tab-indented option dashes stay in-block
-  else if (cur) cur.push(ln); else header.push(ln);
-}
-if (cur) blocks.push(cur);
+// col-0 only: tab-indented option dashes stay in-block
+const [vheader, vblocks] = splitBlocks(raw, (ln) => ln === '-');
 const kept = []; const droppedNames = [];
-for (const b of blocks) {
+for (const b of vblocks) {
   const m = b.map((l) => l.match(/id:\s*(\S+)/)).find(Boolean);
   const id = m ? m[1] : '(none)';
   if (DROP_IDS.includes(id)) droppedNames.push(id); else kept.push(b);
 }
-const veloSettings = header.concat(kept.flat()).join('\n');
+const veloSettings = vheader.concat(kept.flat()).join('\n');
 writeFileSync(join(DIST, 'velocity-settings.css'), veloSettings);
 console.log('velocity settings: kept ' + kept.length + ', dropped: ' + droppedNames.join(','));
 // ---- Border slices (marker-anchored; build fails if upstream renames a marker) ----
 const ball = readFileSync(join(BORDER, 'theme.css'), 'utf8').split('\n');
 const take = (ranges) => ranges.flatMap((r) => ball.slice(r[0] - 1, r[1])).join('\n');
-const at = (marker, what) => {
+const findLine = (pred, what) => { // unique 1-based hit; build fails otherwise
   const hits = [];
-  ball.forEach((l, i) => { if (l.includes(marker)) hits.push(i + 1); });
-  if (hits.length !== 1) die('border marker [' + marker + '] for ' + what + ': ' + hits.length + ' hits');
+  ball.forEach((l, i) => { if (pred(l)) hits.push(i + 1); });
+  if (hits.length !== 1) die('border marker [' + what + ']: ' + hits.length + ' hits');
   return hits[0];
 };
-const namedLine = (name) => { // unique `name: X` settings block; 1-based
-  const hits = [];
-  ball.forEach((l, i) => { if (l.trim() === 'name: ' + name) hits.push(i + 1); });
-  if (hits.length !== 1) die('border settings block [' + name + ']: ' + hits.length + ' hits');
-  return hits[0];
-};
+const at = (marker, what) => findLine((l) => l.includes(marker), marker + ' for ' + what);
+const namedLine = (name) => findLine((l) => l.trim() === 'name: ' + name, 'settings block ' + name);
 const blockStart = (nameLine) => { // walk back to enclosing /* @settings
   let i = nameLine;
   while (i > 1 && !ball[i - 2].includes('/* @settings')) i--;
@@ -162,15 +171,10 @@ const BORDER_DROP_IDS = ['line-emphasis', 'line-hover-indicator-info', 'line-hov
   'editor-grid-background-pattren', 'grid-background-pattern-color', 'grid-background-pattern-size',
   'disable-alternative-checkboxes']; // alt-checkbox CSS dropped, kept base rules never read the class
 const blines = borderSettingsRaw.split('\n');
-const bheader = []; const bblocks = []; let bcur = null; // header runs through Editor `settings:`
-let bstart = 0;
-blines.forEach((ln, i) => { if (ln.trim() === 'settings:') bstart = i + 1; });
-for (const ln of blines.slice(0, bstart)) bheader.push(ln);
-for (const ln of blines.slice(bstart)) {
-  if (/^\s*-\s*$/.test(ln)) { if (bcur) bblocks.push(bcur); bcur = [ln]; }
-  else if (bcur) bcur.push(ln); else bheader.push(ln);
-}
-if (bcur) bblocks.push(bcur);
+// header runs through Editor `settings:`
+const bstart = blines.findLastIndex((ln) => ln.trim() === 'settings:') + 1;
+const [bheader, bblocks] = splitBlocks(blines.slice(bstart), (ln) => /^\s*-\s*$/.test(ln));
+bheader.unshift(...blines.slice(0, bstart));
 const bkept = []; const bdropped = [];
 for (const b of bblocks) {
   const ids = b.map((l) => (l.match(/id:\s*(\S+)/) || [])[1]).filter(Boolean);
@@ -184,7 +188,7 @@ writeFileSync(join(DIST, 'border-markdown.css'), borderCss);
 writeFileSync(join(DIST, 'border-settings.css'), borderSettings);
 console.log('border settings lines: ' + borderSettings.split('\n').length + ', css lines: ' + borderCss.split('\n').length);
 // ---- bridge: vars Border-keep needs that neither chrome nor Obsidian guarantees ----
-const bridge = ['/* Border City bridge */', ':root {', '  --divider-color: var(--background-modifier-border);', '  --background-modifier-border-hover: color-mix(in srgb, var(--color-accent-1) 30%, transparent);', '}'].join('\n');
+const bridge = ['/* Border City bridge */', ':root {', '  --divider-color: var(--background-modifier-border);', '  --background-modifier-border-hover: color-mix(in srgb, var(--color-accent-1) 30%, transparent);', '  /* Dense slider: knob fills bar (Velocity tunes macOS only, Linux left 12px knob in 20px track) */', '  --slider-track-height: 16px;', '  --slider-thumb-height: 16px;', '  --slider-thumb-width: 16px;', '  --slider-thumb-y: 0px;', '}'].join('\n');
 writeFileSync(join(DIST, 'bridge.css'), bridge + '\n');
 // ---- compile chrome ----
 const cands = [join(ROOT, '.build-cache/node_modules/.bin/sass'), join(OUT, 'node_modules/.bin/sass'), 'sass'];
@@ -196,15 +200,10 @@ if (r.status !== 0) die('sass failed: ' + String(r.stderr).slice(0, 1500));
 const chrome = readFileSync(join(DIST, 'chrome.css'), 'utf8');
 console.log('chrome bytes: ' + chrome.length);
 // ---- var check ----
-const noComments = (s) => s.replace(/\/\*[\s\S]*?\*\//g, ' ');
-const clean = noComments(chrome + '\n' + bridge + '\n' + borderCss);
-const used = new Set(); let m1 = null;
-const reU = /var\(\s*(--[A-Za-z0-9-_]+)/g;
-while ((m1 = reU.exec(clean)) !== null) used.add(m1[1]);
-const defined = new Set(); let m2 = null;
-const reD = /(--[A-Za-z0-9-_]+)\s*:/g;
-while ((m2 = reD.exec(clean)) !== null) defined.add(m2[1]);
-const fullBorder = readFileSync(join(BORDER, 'theme.css'), 'utf8');
+const clean = (chrome + '\n' + bridge + '\n' + borderCss).replace(/\/\*[\s\S]*?\*\//g, ' ');
+const used = new Set([...clean.matchAll(/var\(\s*(--[A-Za-z0-9-_]+)/g)].map((m) => m[1]));
+const defined = new Set([...clean.matchAll(/(--[A-Za-z0-9-_]+)\s*:/g)].map((m) => m[1]));
+const droppedVars = new Set([...readFileSync(join(BORDER, 'theme.css'), 'utf8').matchAll(/(--[A-Za-z0-9-_]+):/g)].map((m) => m[1]));
 const missing = [...used].filter((v) => !defined.has(v)).sort();
 // Snapshot: every MISSING verified as Obsidian builtin or var upstream Velocity
 // itself never defines (its theme.css lacks them too). New MISSING tied to a
@@ -220,7 +219,7 @@ const KNOWN_MISSING = ['--anim-duration-moderate', '--anim-motion-delay', '--ani
   '--touch-radius-l', '--touch-radius-s', '--touch-radius-xs', '--touch-radius-xxs',
   '--touch-size-l', '--touch-size-xxs'];
 console.log('border vars used: ' + used.size + ', missing: ' + missing.length);
-for (const v of missing) console.log('  MISSING ' + v + (fullBorder.includes(v + ':') ? ' (also in dropped border region)' : ' (builtin?)'));
+for (const v of missing) console.log('  MISSING ' + v + (droppedVars.has(v) ? ' (also in dropped border region)' : ' (builtin?)'));
 const unknown = missing.filter((v) => !KNOWN_MISSING.includes(v));
 if (unknown.length) die('new MISSING vars, bridge/drop/allowlist: ' + unknown.join(', '));
 const stale = KNOWN_MISSING.filter((v) => !missing.includes(v));
@@ -241,8 +240,8 @@ const VARIANTS = [
   { name: 'liquid', themeName: 'Border City - Liquid', src: 'variants/liquid.css' },
 ];
 const baseManifest = JSON.parse(readFileSync(join(OUT, 'manifest.json'), 'utf8'));
-for (const v of VARIANTS) rmSync(join(OUT, 'variants', v.name), { recursive: true, force: true }); // stale nested outputs; sources are the .css files above them
 for (const v of VARIANTS) {
+  rmSync(join(OUT, 'variants', v.name), { recursive: true, force: true }); // stale nested outputs; sources are the .css files above them
   const layer = readFileSync(join(OUT, v.src), 'utf8');
   const variantOut = [themeOut, '/* Variant: ' + v.name + ' (web-component token layer) */', layer].join('\n');
   const vo = (variantOut.match(/\{/g) || []).length;

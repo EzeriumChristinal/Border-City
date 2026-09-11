@@ -22,6 +22,28 @@ Upstream sources are vendored read-only. Never edit them in place.
   emitted sibling themes (each `manifest.json` + `theme.css`).
   Generated, git-ignored. Never hand-edit.
 
+## Variants
+
+Layers in `border-city/variants/*.css` stay token-first: override vars,
+then a few small behavior rules. Never restyle markdown (Border owns it).
+Keep each layer small and scoped:
+
+- Desktop-only chrome rules take a `body:not(.is-mobile)` guard. The one
+  exception was liquid blurring `.workspace-tab-header-container`,
+  `.workspace-ribbon`, `.titlebar` — with 55% transparent surfaces the
+  tabs washed out, so blur now covers overlays + leaf containers only.
+- The opaque `--tab-right-fade` hover wash on the tab close button reads
+  as a block over translucent/M3 surfaces. Material + liquid neutralize
+  it with `background: transparent`. Fluent keeps it (solid surfaces).
+- Liquid also sets `.status-bar { filter: none; }`: the base 37.5% dim
+  looked broken over translucent glass.
+- Velocity's FAB block (`_fab-and-header.scss`: `translate` + `order` +
+  hidden last-child) stacked every markdown view-action into one floating
+  spot. `build.mjs` deletes it and writes a plain 6-line row instead.
+  Do not restore FAB styling without fixing the stacking first.
+  Material keeps one override on top (tonal `background-color` +
+  `border-radius`, no layout), which is safe.
+
 ## Rebuild
 
 ```sh
@@ -53,6 +75,17 @@ older than its `src/` + `build.mjs`.
   a fresh build).
 - Keep both Style Settings id namespaces (`obsidian-velocity*`, Border
   `Editor`) collision-free. The settings-panel SCSS hooks on those ids.
+
+## Verify
+
+- `npm run build` must print BUILD OK with no new MISSING. `npm run check`
+  is rebuild + tracked-output gate (CI).
+- `border-city/screenshots/`: `fixture.html` + `shoot.mjs` harness,
+  `out/` git-ignored. Needs a Chromium binary (`HELIUM_BIN`, default
+  `/opt/helium/helium`).
+- `ObsidianTestVault/` is git-ignored. After building, copy the four theme
+  folders into `ObsidianTestVault/BorderCityTest1/.obsidian/themes/` to
+  eyeball changes in Obsidian.
 
 ## Tradeoffs on record
 

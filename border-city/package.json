@@ -6,7 +6,8 @@
 	"scripts": {
 		"build": "node build.mjs",
 		"check": "node build.mjs && git diff --exit-code -- theme.css",
-		"clean": "node -e \"require('node:fs').rmSync('src',{recursive:true,force:true});require('node:fs').rmSync('dist',{recursive:true,force:true});for(const d of ['../border-city-fluent','../border-city-material','../border-city-liquid'])require('node:fs').rmSync(d,{recursive:true,force:true})\""
+		"screenshots": "node screenshots/shoot.mjs",
+		"clean": "node -e \"require('node:fs').rmSync('src',{recursive:true,force:true});require('node:fs').rmSync('dist',{recursive:true,force:true});require('node:fs').rmSync('screenshots/out',{recursive:true,force:true});for(const d of ['../border-city-fluent','../border-city-material','../border-city-liquid'])require('node:fs').rmSync(d,{recursive:true,force:true})\""
 	},
 	"engines": {
 		"node": ">=18"
