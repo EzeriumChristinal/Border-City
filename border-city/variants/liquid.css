@@ -29,12 +29,15 @@ body {
   --background-primary: color-mix(in srgb, var(--color-base-05) 55%, transparent);
   --background-secondary: color-mix(in srgb, var(--color-base-10) 55%, transparent);
   --status-bar-background: color-mix(in srgb, var(--background-secondary) 60%, transparent);
+  /* Bright Velocity blue + hover brighten: dark text contrasts, white fails. */
+  --text-on-accent: #101010;
 }
 
 .theme-dark {
   --background-primary: color-mix(in srgb, var(--color-base-00) 55%, transparent);
   --background-secondary: color-mix(in srgb, var(--color-base-10) 55%, transparent);
   --status-bar-background: color-mix(in srgb, var(--background-secondary) 60%, transparent);
+  --text-on-accent: #101010;
 }
 
 /* Glass overlays: blur + saturate + specular edge + hairline.

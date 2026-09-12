@@ -35,6 +35,7 @@ body {
   --interactive-accent-hover: #5b45a0;
   --background-primary: #fef7ff;
   --background-secondary: #f3edf7;
+  --text-on-accent: #ffffff;
   /* M3 state layer: 8% primary hover */
   --background-modifier-hover: color-mix(in srgb, #6750a4 8%, transparent);
   /* M3 outline variant */
@@ -47,8 +48,27 @@ body {
   --interactive-accent-hover: #dbc8ff;
   --background-primary: #141218;
   --background-secondary: #1d1b20;
+  --text-on-accent: #381e72;
   --background-modifier-hover: color-mix(in srgb, #d0bcff 8%, transparent);
   --background-modifier-border: color-mix(in srgb, #d0bcff 30%, transparent);
+}
+
+/* M3 is flat + solid: kill Velocity glass speculars and all blur. */
+.theme-light, .theme-dark {
+  --glass-base: none;
+  --glass-base-m: none;
+  --glass-base-l: none;
+  --glass-button: none;
+  --glass-button-l: none;
+  --glass-button-error: none;
+}
+.modal, .prompt, .menu, .popover, .suggestion-container,
+.status-bar, .status-bar:hover,
+body.disable-status-fade .status-bar,
+body:not(.is-phone) .community-modal-controls,
+.modal-container.mod-dim > .modal:not(.mod-settings, .mod-community-modal),
+.modal-container.mod-confirmation > .modal {
+  backdrop-filter: none;
 }
 
 /* M3 buttons: 40px pill, tonal hover via state layer */

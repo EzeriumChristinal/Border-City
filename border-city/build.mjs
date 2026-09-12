@@ -187,8 +187,9 @@ console.log('border settings: kept ' + bkept.length + ', dropped: ' + bdropped.j
 writeFileSync(join(DIST, 'border-markdown.css'), borderCss);
 writeFileSync(join(DIST, 'border-settings.css'), borderSettings);
 console.log('border settings lines: ' + borderSettings.split('\n').length + ', css lines: ' + borderCss.split('\n').length);
-// ---- bridge: vars Border-keep needs that neither chrome nor Obsidian guarantees ----
-const bridge = ['/* Border City bridge */', ':root {', '  --divider-color: var(--background-modifier-border);', '  --background-modifier-border-hover: color-mix(in srgb, var(--color-accent-1) 30%, transparent);', '  /* Dense slider: knob fills bar (Velocity tunes macOS only, Linux left 12px knob in 20px track) */', '  --slider-track-height: 16px;', '  --slider-thumb-height: 16px;', '  --slider-thumb-width: 16px;', '  --slider-thumb-y: 0px;', '}'].join('\n');
+// ---- bridge: vars Border-keep needs that neither chrome nor Obsidian guarantees,
+// plus one shared contrast fix (accent hover bg must pair with --text-on-accent) ----
+const bridge = ['/* Border City bridge */', ':root {', '  --divider-color: var(--background-modifier-border);', '  --background-modifier-border-hover: color-mix(in srgb, var(--color-accent-1) 30%, transparent);', '  /* Dense slider: knob fills bar (Velocity tunes macOS only, Linux left 12px knob in 20px track) */', '  --slider-track-height: 16px;', '  --slider-thumb-height: 16px;', '  --slider-thumb-width: 16px;', '  --slider-thumb-y: 0px;', '}', '/* Hover bg goes accent-bright: keep text on --text-on-accent (variants pin it dark where accent is bright) */', 'button.mod-cta:hover,', ':is(.mod-root, .popover) .metadata-add-button:hover,', '.menu-item:not(.is-disabled):hover {', '  color: var(--text-on-accent);', '}'].join('\n');
 writeFileSync(join(DIST, 'bridge.css'), bridge + '\n');
 // ---- compile chrome ----
 const cands = [join(ROOT, '.build-cache/node_modules/.bin/sass'), join(OUT, 'node_modules/.bin/sass'), 'sass'];

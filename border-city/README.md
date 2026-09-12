@@ -6,7 +6,9 @@ Border markdown (headings, lists, tables, callouts, code, checkboxes, embeds).
 ## Layout
 
 - `theme.css` + `manifest.json`: built artifact. Install only these two files
-  (inside a `border-city` folder) as Obsidian theme, not whole repo folder.
+  (inside a vault theme folder named exactly `Border City` to match the
+  manifest `"name"` — any other folder name hides the theme), not the whole
+  repo folder.
 - `build.mjs`: the merge. Copies Velocity `src/`, drops markdown/integration
   modules, applies patches, compiles chrome with Sass, appends Border markdown
   slices + pruned Style Settings. Marker asserts fail the build if upstream
@@ -54,7 +56,9 @@ checkboxes, icon/pdf/mobile/plugin sections, plus 16 dead Editor toggles
 (focus mode, hover indicator, grid pattern, alt-checkbox switch) whose CSS
 never shipped — pruned at build so no toggle is dead.
 
-Two-var `dist/bridge.css` keeps Border rules that referenced dropped systems.
+`dist/bridge.css` pins vars kept Border rules need that chrome and Obsidian
+omit (divider, border-hover, slider sizing) plus one shared accent-hover
+contrast rule.
 
 ## Variants (experimental)
 
@@ -67,8 +71,10 @@ ships, CSS only. Markdown render untouched in all three (Border owns it).
 (`border-city-fluent/`, `border-city-material/`, `border-city-liquid/`,
 each `theme.css` = base + one token layer, `manifest.json` generated with
 its own name). They are build outputs (git-ignored, regenerated every
-build), not sources. Copy any folder into `<vault>/.obsidian/themes/` and
-each shows as its own theme:
+build), not sources. To install, copy each pair into a vault theme folder
+named exactly as its manifest (`Border City - Fluent`, `Border City -
+Material`, `Border City - Liquid` — rename on copy, any other folder name
+hides the theme) and each shows as its own theme:
 
 - `fluent/` — values from [fluentui](https://github.com/microsoft/fluentui):
   Segoe UI stack, 4px rectangular controls with 1px neutral strokes, flat

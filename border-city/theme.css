@@ -11,6 +11,12 @@ body{--anim-duration-superfast: 75ms;--anim-duration-fast: 150ms;--vl-ease-out: 
   --slider-thumb-width: 16px;
   --slider-thumb-y: 0px;
 }
+/* Hover bg goes accent-bright: keep text on --text-on-accent (variants pin it dark where accent is bright) */
+button.mod-cta:hover,
+:is(.mod-root, .popover) .metadata-add-button:hover,
+.menu-item:not(.is-disabled):hover {
+  color: var(--text-on-accent);
+}
 /* Paragraphs */
 
 body.p-spacing-br :is(.markdown-preview-view, .markdown-rendered) p>br {

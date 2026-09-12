@@ -37,6 +37,15 @@ Keep each layer small and scoped:
   it with `background: transparent`. Fluent keeps it (solid surfaces).
 - Liquid also sets `.status-bar { filter: none; }`: the base 37.5% dim
   looked broken over translucent glass.
+- Accent-hover bg pairs with `--text-on-accent`: `dist/bridge.css` forces
+  `button.mod-cta:hover`, `.metadata-add-button:hover` and
+  `.menu-item:hover` onto it, and each variant pins it per mode (bright
+  accents get dark text: fluent dark `#000`, material dark M3 on-primary
+  `#381e72`, liquid both `#101010`; light dark-accents keep `#fff`).
+- Fluent + Material neutralize Velocity glass speculars (`--glass-*: none`,
+  later-in-cascade tie with chrome's `.theme-*` defs). Material additionally
+  kills all `backdrop-filter` (M3 is solid + elevation); Fluent kills only
+  status-bar blur (acrylic stays on menu/popover/suggestion flyouts).
 - Velocity's FAB block (`_fab-and-header.scss`: `translate` + `order` +
   hidden last-child) stacked every markdown view-action into one floating
   spot. `build.mjs` deletes it and writes a plain 6-line row instead.
@@ -83,9 +92,18 @@ older than its `src/` + `build.mjs`.
 - `border-city/screenshots/`: `fixture.html` + `shoot.mjs` harness,
   `out/` git-ignored. Needs a Chromium binary (`HELIUM_BIN`, default
   `/opt/helium/helium`).
-- `ObsidianTestVault/` is git-ignored. After building, copy the four theme
-  folders into `ObsidianTestVault/BorderCityTest1/.obsidian/themes/` to
-  eyeball changes in Obsidian.
+- Manual Obsidian check (optional): copy each theme's `manifest.json` +
+  `theme.css` into a test vault's `.obsidian/themes/`, one folder per theme
+  named exactly as its manifest (`Border City` plus ` - Fluent`,
+  ` - Material`, ` - Liquid`). Build output dirs use dashes, so rename on
+  copy. Any other folder name hides the theme from the selector.
+
+## Commits
+
+- Messages stay universal: describe the change in repo terms anyone
+  cloning it understands. No local-only references (personal vault names,
+  machine paths, local binaries).
+- One subject line plus a short body listing what changed and why.
 
 ## Tradeoffs on record
 

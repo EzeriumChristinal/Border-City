@@ -40,6 +40,7 @@ body {
   --interactive-accent: #0f6cbd;
   --interactive-accent-hover: #115ea3;
   --background-secondary: #f3f2f1;
+  --text-on-accent: #ffffff;
 }
 
 .theme-dark {
@@ -47,6 +48,22 @@ body {
   --interactive-accent: #479ef5;
   --interactive-accent-hover: #5aa9ff;
   --background-secondary: #1b1a19;
+  --text-on-accent: #000000;
+}
+
+/* Fluent is flat: kill Velocity glass speculars (outer shadows stay). */
+.theme-light, .theme-dark {
+  --glass-base: none;
+  --glass-base-m: none;
+  --glass-base-l: none;
+  --glass-button: none;
+  --glass-button-l: none;
+  --glass-button-error: none;
+}
+/* Solid surfaces: no blur on status bar (acrylic stays on flyouts below). */
+.status-bar:hover,
+body.disable-status-fade .status-bar {
+  backdrop-filter: none;
 }
 
 /* Fluent controls: 32px box, 4px corners, 1px neutral stroke, flat */
