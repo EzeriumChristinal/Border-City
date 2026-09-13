@@ -4,11 +4,19 @@
  * components would emit plus Fluent behaviors — small rectangular corners,
  * 1px neutral strokes, flat controls, depth only on flyouts, 2px focus
  * rect, underline active tab, 40x20 switch, acrylic overlays.
+ * VSCode chrome idioms (hairline separators, ribbon tri-state, match pill)
+ * adapted from obsidian-vscode-2026 by YangsonHung (MIT).
+ * Welded headers, ribbon edge, tooltip acrylic adapted from
+ * obsidian-theme-fluent by eth-p (MIT).
+ * Accent + surfaces inherit Velocity donor themes; no hardcoded hues.
  * Markdown render untouched (Border owns it).
  */
 body {
   --font-interface-theme: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
-  --corner-smoothing: 30%;
+  /* Fluent uses plain rounded rects, no Apple squircle */
+  --corner-smoothing: unset;
+  /* Flat workspace: kill Velocity radial Liquid gradient */
+  --bg-main-workspace: none;
   --anim-duration-fast: 100ms;
   /* Fluent corner radius: small/rectangular */
   --radius-xs: 2px;
@@ -35,23 +43,16 @@ body {
   --toggle-s-thumb-height: 9px;
 }
 
-.theme-light {
-  --color-accent: #0f6cbd;
-  --interactive-accent: #0f6cbd;
-  --interactive-accent-hover: #115ea3;
-  --background-secondary: #f3f2f1;
+/* Accent + surfaces inherit Velocity per-mode themes (and Style Settings
+ * accent picks). Donor accent is vivid blue both modes: white text. */
+.theme-light, .theme-dark {
   --text-on-accent: #ffffff;
 }
 
-.theme-dark {
-  --color-accent: #479ef5;
-  --interactive-accent: #479ef5;
-  --interactive-accent-hover: #5aa9ff;
-  --background-secondary: #1b1a19;
-  --text-on-accent: #000000;
-}
-
-/* Fluent is flat: kill Velocity glass speculars (outer shadows stay). */
+/* Fluent is flat: kill Velocity glass speculars (outer shadows stay).
+ * Shadow conduits bypassing --glass-* (hardcoded light menu-shadow,
+ * glossy toggle inset, settings inset, icon hover ring, tab shadow)
+ * go flat too. Acrylic blur stays on flyouts below. */
 .theme-light, .theme-dark {
   --glass-base: none;
   --glass-base-m: none;
@@ -59,8 +60,19 @@ body {
   --glass-button: none;
   --glass-button-l: none;
   --glass-button-error: none;
+  --menu-shadow: 0 8px 16px rgba(0, 0, 0, 0.14);
+  --shadow-toggle: none;
+  --shadow-setting-items-top: 0 1px 4px rgba(0, 0, 0, 0.12);
+  --control-icon-shadow: none;
+  --shadow-tab: none;
+  /* Chrome never defines this (core builtin): pin to donor accent */
+  --interactive-accent: var(--color-accent);
 }
 /* Solid surfaces: no blur on status bar (acrylic stays on flyouts below). */
+.status-bar {
+  filter: none;
+  border-radius: 0;
+}
 .status-bar:hover,
 body.disable-status-fade .status-bar {
   backdrop-filter: none;
@@ -85,7 +97,7 @@ body:not(.is-mobile) .mod-root .workspace-tabs:not(.mod-stacked) .workspace-tab-
   box-shadow: inset 0 -2px 0 var(--interactive-accent);
 }
 /* Fluent flyouts: 8px corners, stroke, depth-16 acrylic */
-.menu, .popover, .suggestion-container {
+.menu, .popover, .suggestion-container, .tooltip {
   border-radius: var(--radius-m);
   border: 1px solid var(--background-modifier-border);
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.14);
@@ -94,4 +106,58 @@ body:not(.is-mobile) .mod-root .workspace-tabs:not(.mod-stacked) .workspace-tab-
 .modal, .prompt {
   border-radius: var(--radius-xl);
   border: 1px solid var(--background-modifier-border);
+}
+/* Fluent rectangles: ribbon/tab-list pills go 4px, shadow already flat */
+body:not(.is-mobile) :is(.workspace-ribbon,
+  .workspace-sidedock-vault-profile,
+  .workspace-tab-header-tab-list,
+  .sidebar-toggle-button) .clickable-icon {
+  border-radius: var(--radius-s);
+}
+/* Flat nav capsule: kill hover-reveal pill */
+body:not(.is-mobile) .nav-buttons-container {
+  background-color: var(--background-modifier-hover);
+  border-radius: var(--radius-s);
+}
+/* Flat sidedock tab strip: kill glass pill + outline ring */
+body:not(.is-mobile) .mod-sidedock .workspace-tab-header-container-inner {
+  border-radius: var(--radius-s);
+  outline: none;
+}
+/* Welded frame: flat title strip + header hairlines + ribbon edge,
+ * solid secondary sidebars (VSCode-2026 + eth-p fluent idioms) */
+body:not(.is-mobile) .titlebar {
+  background-color: var(--background-secondary);
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+body:not(.is-mobile) .view-header {
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+body:not(.is-mobile) .workspace-ribbon.mod-left {
+  border-right: 1px solid var(--background-modifier-border);
+}
+.workspace-split:not(.mod-root) .workspace-leaf {
+  background-color: var(--background-secondary);
+}
+/* Ribbon tri-state: muted idle, normal hover, accent active */
+.clickable-icon.side-dock-ribbon-action {
+  --icon-color: var(--text-muted);
+  --icon-color-hover: var(--text-normal);
+}
+.clickable-icon.side-dock-ribbon-action:hover {
+  background-color: var(--background-modifier-hover);
+}
+.clickable-icon.side-dock-ribbon-action.is-active {
+  color: var(--interactive-accent);
+  background-color: var(--background-modifier-hover);
+}
+/* Rectangular rows: tree + menu items go 4px */
+.workspace-leaf-content .tree-item-self,
+.menu-item {
+  border-radius: var(--radius-s);
+}
+/* Match pill: accent wash on search/suggestion highlights */
+.search-result-file-matched-text, .suggestion-highlight {
+  background-color: color-mix(in srgb, var(--interactive-accent) 22%, transparent);
+  border-radius: var(--radius-s);
 }

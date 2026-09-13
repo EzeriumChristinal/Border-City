@@ -36,7 +36,8 @@ for (const [theme, css] of Object.entries(THEMES)) {
     const shot = join(OUT, `${theme}.${mode}.png`);
     writeFileSync(page, html);
     try {
-      const r = spawnSync(HELIUM, ['--headless', '--no-sandbox', '--disable-gpu',
+      const r = spawnSync(HELIUM, ['--headless', '--no-sandbox', '--disable-gpu', '--hide-scrollbars',
+        '--force-device-scale-factor=1',
         '--user-data-dir=' + join(tmpdir(), 'helium-shots'),
         `--screenshot=${shot}`, '--window-size=1280,3400', pathToFileURL(page).href],
         { encoding: 'utf8' });

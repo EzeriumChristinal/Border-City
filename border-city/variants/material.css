@@ -1,13 +1,18 @@
 /* Border City variant: Material.
- * Baseline-M3 values (github.com/material-components/material-web, @material/web)
- * on Border City chrome. Obsidian ships CSS only: pins M3 color/shape/type
- * plus M3 behaviors — pill buttons, outline strokes, 3px tab indicator,
- * 52x32 pill switch, tonal FAB, state-layer hover, M3 elevation on sheets.
+ * M3 roles derived from the Velocity donor palette (accent-h/s/l,
+ * backgrounds, setting tokens): hue follows Velocity light/dark themes
+ * and user Style Settings accent picks. Behaviors from
+ * github.com/material-components/material-web plus Expressive motion +
+ * tonal containers adapted from Material 3 Expressive
+ * (github.com/joangen/Obsidian-Material-3-Expressive, MIT (c) 2026 JoanGen).
  * Markdown render untouched (Border owns it).
  */
 body {
   --font-interface-theme: "Roboto", system-ui, sans-serif;
-  --corner-smoothing: 50%;
+  /* M3 uses plain rounded rects, no Apple squircle */
+  --corner-smoothing: unset;
+  /* Flat workspace: kill Velocity radial Liquid gradient */
+  --bg-main-workspace: none;
   /* M3 shape scale: cards 12-16, sheets 28, full pill via 999px below */
   --radius-xs: 4px;
   --radius-s: 8px;
@@ -29,31 +34,38 @@ body {
   --toggle-s-thumb-height: 12px;
 }
 
+/* Accent + surfaces inherit Velocity per-mode themes. M3 roles derive
+ * from them, so hue/lightness track the donor (and Style Settings
+ * accent picks). Donor accent is vivid blue both modes: white text. */
 .theme-light {
-  --color-accent: #6750a4;
-  --interactive-accent: #6750a4;
-  --interactive-accent-hover: #5b45a0;
-  --background-primary: #fef7ff;
-  --background-secondary: #f3edf7;
   --text-on-accent: #ffffff;
-  /* M3 state layer: 8% primary hover */
-  --background-modifier-hover: color-mix(in srgb, #6750a4 8%, transparent);
-  /* M3 outline variant */
-  --background-modifier-border: color-mix(in srgb, #6750a4 30%, transparent);
+  /* M3 state layer: 8% donor-accent hover */
+  --background-modifier-hover: color-mix(in srgb, var(--interactive-accent) 8%, transparent);
+  /* M3E tonal system off donor accent */
+  --primary-container: color-mix(in srgb, var(--interactive-accent) 14%, var(--background-secondary));
+  --on-primary-container: color-mix(in srgb, var(--interactive-accent) 75%, black);
+  --nav-item-background-active: var(--primary-container);
+  --nav-item-background-selected: var(--primary-container);
+  --shadow-s: 0px 1px 2px rgba(0, 0, 0, 0.15), 0px 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-m: 0px 1px 2px rgba(0, 0, 0, 0.15), 0px 2px 6px rgba(0, 0, 0, 0.1);
+  --shadow-l: 0px 1px 3px rgba(0, 0, 0, 0.15), 0px 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .theme-dark {
-  --color-accent: #d0bcff;
-  --interactive-accent: #d0bcff;
-  --interactive-accent-hover: #dbc8ff;
-  --background-primary: #141218;
-  --background-secondary: #1d1b20;
-  --text-on-accent: #381e72;
-  --background-modifier-hover: color-mix(in srgb, #d0bcff 8%, transparent);
-  --background-modifier-border: color-mix(in srgb, #d0bcff 30%, transparent);
+  --text-on-accent: #ffffff;
+  --background-modifier-hover: color-mix(in srgb, var(--interactive-accent) 8%, transparent);
+  --primary-container: color-mix(in srgb, var(--interactive-accent) 30%, var(--background-secondary));
+  --on-primary-container: color-mix(in srgb, var(--interactive-accent) 70%, white);
+  --nav-item-background-active: var(--primary-container);
+  --nav-item-background-selected: var(--primary-container);
+  --shadow-s: 0px 1px 2px rgba(0, 0, 0, 0.6), 0px 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-m: 0px 1px 2px rgba(0, 0, 0, 0.6), 0px 2px 6px rgba(0, 0, 0, 0.3);
+  --shadow-l: 0px 1px 3px rgba(0, 0, 0, 0.6), 0px 4px 8px rgba(0, 0, 0, 0.3);
 }
 
-/* M3 is flat + solid: kill Velocity glass speculars and all blur. */
+/* M3 is flat + solid: kill Velocity glass speculars and all blur. Shadow
+ * conduits that bypass --glass-* (hardcoded light menu-shadow, glossy
+ * toggle inset, settings inset, icon hover ring, tab shadow) go flat too. */
 .theme-light, .theme-dark {
   --glass-base: none;
   --glass-base-m: none;
@@ -61,8 +73,17 @@ body {
   --glass-button: none;
   --glass-button-l: none;
   --glass-button-error: none;
+  /* Chrome never defines this (core builtin): pin to donor accent */
+  --interactive-accent: var(--color-accent);
+  --menu-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  --shadow-toggle: none;
+  --shadow-setting-items-top: 0 1px 4px rgba(0, 0, 0, 0.12);
+  --control-icon-shadow: none;
+  --shadow-tab: none;
+  --prompt-backdrop-filter: none;
 }
 .modal, .prompt, .menu, .popover, .suggestion-container,
+.mod-dim + .suggestion-container,
 .status-bar, .status-bar:hover,
 body.disable-status-fade .status-bar,
 body:not(.is-phone) .community-modal-controls,
@@ -99,7 +120,7 @@ body:not(.is-mobile) .workspace-leaf-content[data-type="markdown"] .view-actions
   border-radius: 999px;
 }
 /* M3 sheets: 16-28px corners, tonal elevation */
-.menu, .suggestion-container {
+.menu, .popover, .suggestion-container {
   border-radius: var(--radius-ml);
   border: 1px solid var(--background-modifier-border);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
@@ -107,4 +128,110 @@ body:not(.is-mobile) .workspace-leaf-content[data-type="markdown"] .view-actions
 .modal, .prompt {
   border-radius: var(--radius-xl);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+}
+/* Solid status bar: base 37.5% dim reads ghosted over M3 solids */
+.status-bar {
+  filter: none;
+}
+/* Flat nav capsule: kill hover-reveal pill, use state layer */
+body:not(.is-mobile) .nav-buttons-container {
+  background-color: var(--background-modifier-hover);
+  border-radius: var(--radius-m);
+}
+/* Flat sidedock tab strip: kill glass pill + outline ring */
+body:not(.is-mobile) .mod-sidedock .workspace-tab-header-container-inner {
+  border-radius: var(--radius-m);
+  outline: none;
+}
+/* M3E Expressive motion: snappy standard easing on chrome controls */
+body:not(.is-mobile) button:not(.clickable-icon),
+body:not(.is-mobile) .clickable-icon,
+body:not(.is-mobile) .menu-item,
+body:not(.is-mobile) .mod-root .workspace-tabs:not(.mod-stacked) .workspace-tab-header {
+  transition: transform 200ms cubic-bezier(0.2, 0, 0, 1), box-shadow 200ms cubic-bezier(0.2, 0, 0, 1), background-color 200ms cubic-bezier(0.2, 0, 0, 1);
+}
+/* M3E Expressive motion: hover lift (fine pointers only), press squash */
+@media (hover: hover) {
+  body:not(.is-mobile) button:not(.clickable-icon):hover:not(:disabled),
+  body:not(.is-mobile) .clickable-icon:hover:not(.is-disabled),
+  body:not(.is-mobile) .menu-item:hover:not(.is-disabled),
+  body:not(.is-mobile) .mod-root .workspace-tabs:not(.mod-stacked) .workspace-tab-header:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-s);
+  }
+}
+body:not(.is-mobile) button:not(.clickable-icon):active:not(:disabled),
+body:not(.is-mobile) .clickable-icon:active:not(.is-disabled),
+body:not(.is-mobile) .menu-item:active:not(.is-disabled),
+body:not(.is-mobile) .mod-root .workspace-tabs:not(.mod-stacked) .workspace-tab-header:active {
+  transform: scale(0.92);
+  box-shadow: none;
+}
+/* M3E expressive settings: flat groups, stacked container radii */
+.modal.mod-settings .setting-items,
+.modal.mod-settings .vertical-tab-header-group-items,
+.setting-items,
+.vertical-tab-header-group-items {
+  background-color: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+}
+.modal.mod-settings .setting-items > .setting-item,
+.modal.mod-settings .vertical-tab-header-group-items > .vertical-tab-nav-item,
+.setting-items > .setting-item,
+.vertical-tab-header-group-items > .vertical-tab-nav-item {
+  background-color: var(--setting-item-background);
+  border: none;
+  border-radius: var(--radius-xs);
+  margin-bottom: 2px;
+}
+.modal.mod-settings .setting-items > .setting-item:first-child,
+.modal.mod-settings .vertical-tab-header-group-items > .vertical-tab-nav-item:first-child,
+.setting-items > .setting-item:first-child,
+.vertical-tab-header-group-items > .vertical-tab-nav-item:first-child {
+  border-top-left-radius: var(--radius-ml);
+  border-top-right-radius: var(--radius-ml);
+}
+.modal.mod-settings .setting-items > .setting-item:last-child,
+.modal.mod-settings .vertical-tab-header-group-items > .vertical-tab-nav-item:last-child,
+.setting-items > .setting-item:last-child,
+.vertical-tab-header-group-items > .vertical-tab-nav-item:last-child {
+  border-bottom-left-radius: var(--radius-ml);
+  border-bottom-right-radius: var(--radius-ml);
+  margin-bottom: 0;
+}
+.modal.mod-settings .setting-items > .setting-item:only-child,
+.modal.mod-settings .vertical-tab-header-group-items > .vertical-tab-nav-item:only-child,
+.setting-items > .setting-item:only-child,
+.vertical-tab-header-group-items > .vertical-tab-nav-item:only-child {
+  border-radius: var(--radius-ml);
+}
+/* M3E menus: selected item goes tonal container, not accent wash */
+.menu-item.selected:not(.is-label) {
+  background-color: var(--primary-container);
+  color: var(--on-primary-container);
+}
+.menu-item.selected:not(.is-label) .menu-item-icon svg {
+  color: var(--on-primary-container);
+}
+/* M3E inputs: pill search, accent focus ring */
+input[type="search"] {
+  border-radius: 999px;
+}
+input[type="text"]:focus, input[type="search"]:focus,
+input[type="number"]:focus, select:focus {
+  border-color: var(--interactive-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--interactive-accent) 20%, transparent);
+}
+/* M3E bits: round color swatch, tonal raised view-actions */
+input[type="color"] {
+  border-radius: 50%;
+  padding: 0;
+  border: none;
+  background-color: transparent;
+  box-shadow: none;
+}
+.view-actions.mod-raised {
+  background-color: var(--background-secondary);
 }

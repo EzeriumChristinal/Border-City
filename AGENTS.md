@@ -35,17 +35,35 @@ Keep each layer small and scoped:
 - The opaque `--tab-right-fade` hover wash on the tab close button reads
   as a block over translucent/M3 surfaces. Material + liquid neutralize
   it with `background: transparent`. Fluent keeps it (solid surfaces).
-- Liquid also sets `.status-bar { filter: none; }`: the base 37.5% dim
-  looked broken over translucent glass.
+- All three variants set `.status-bar { filter: none; }`: the base 37.5%
+  dim reads ghosted over translucent glass and flat M3/Fluent solids.
 - Accent-hover bg pairs with `--text-on-accent`: `dist/bridge.css` forces
   `button.mod-cta:hover`, `.metadata-add-button:hover` and
   `.menu-item:hover` onto it, and each variant pins it per mode (bright
-  accents get dark text: fluent dark `#000`, material dark M3 on-primary
-  `#381e72`, liquid both `#101010`; light dark-accents keep `#fff`).
+  accents get dark text: liquid both `#101010`; fluent and material keep
+  `#fff` (both inherit Velocity's vivid-blue accent).
 - Fluent + Material neutralize Velocity glass speculars (`--glass-*: none`,
-  later-in-cascade tie with chrome's `.theme-*` defs). Material additionally
-  kills all `backdrop-filter` (M3 is solid + elevation); Fluent kills only
-  status-bar blur (acrylic stays on menu/popover/suggestion flyouts).
+  later-in-cascade tie with chrome's `.theme-*` defs) plus shadow conduits
+  that bypass glass vars (`--menu-shadow` hardcoded light insets, glossy
+  `--shadow-toggle`, `--shadow-setting-items-top`, `--control-icon-shadow`,
+  `--shadow-tab`). Both unset `--corner-smoothing` (plain rounded rects,
+  no Apple squircle) and kill the radial `--bg-main-workspace` gradient.
+  Material additionally kills all `backdrop-filter` (M3 is solid +
+  elevation, incl. `.mod-dim + .suggestion-container` and
+  `--prompt-backdrop-filter`); Fluent kills only status-bar blur (acrylic
+  stays on menu/popover/suggestion flyouts). Both flatten the nav reveal
+  capsule and the sidedock tab pill; Fluent additionally squares ribbon
+  pills, welds titlebar/view-header/ribbon with hairlines, adds ribbon
+  tri-state + match pill + tooltip acrylic (VSCode-2026 and eth-p fluent,
+  MIT, attribution in layer header). Fluent inherits donor accent +
+  surfaces like Material (no hardcoded hues). Material also
+  carries Expressive motion (hover lift, press squash) + tonal containers
+  (`--primary-container`, M3 elevation shadows, expressive settings groups)
+  adapted from Material 3 Expressive (MIT; attribution in layer header).
+  Only desktop-ungated, chrome-only parts were taken: its mobile-gated
+  rules and markdown styling do not apply. Material inherits donor accent
+  + surfaces (no hardcoded hues); M3 roles derive via `color-mix` from
+  donor vars, so Style Settings accent picks flow through.
 - Velocity's FAB block (`_fab-and-header.scss`: `translate` + `order` +
   hidden last-child) stacked every markdown view-action into one floating
   spot. `build.mjs` deletes it and writes a plain 6-line row instead.

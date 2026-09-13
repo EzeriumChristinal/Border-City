@@ -398,6 +398,15 @@ const unknown = missing.filter((v) => !KNOWN_MISSING.includes(v));
 if (unknown.length) die('new MISSING vars, bridge/drop/allowlist: ' + unknown.join(', '));
 const stale = KNOWN_MISSING.filter((v) => !missing.includes(v));
 if (stale.length) console.log('var check: resolved since snapshot: ' + stale.join(','));
+// ---- variant var check: layers ship uncompiled, typos fail silently ----
+for (const name of ['fluent', 'material', 'liquid']) {
+  const layer = readFileSync(join(OUT, 'variants', name + '.css'), 'utf8').replace(/\/\*[\s\S]*?\*\//g, ' ');
+  const lused = new Set([...layer.matchAll(/var\(\s*(--[A-Za-z0-9-_]+)/g)].map((m) => m[1]));
+  const ldefs = new Set([...layer.matchAll(/(--[A-Za-z0-9-_]+)\s*:/g)].map((m) => m[1]));
+  const lunknown = [...lused].filter((v) => !defined.has(v) && !ldefs.has(v) && !KNOWN_MISSING.includes(v));
+  if (lunknown.length) die('variant ' + name + ' unknown vars: ' + lunknown.join(', '));
+}
+console.log('variant var check OK');
 // ---- assemble ----
 const braces = (s) => [(s.match(/\{/g) || []).length, (s.match(/\}/g) || []).length];
 const themeOut = ['/* Border City: Velocity chrome + Border markdown. Built by build.mjs. */', chrome, bridge, borderCss, polish, veloSettings, borderSettings].join('\n');

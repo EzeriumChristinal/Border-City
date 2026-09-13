@@ -79,12 +79,14 @@ hides the theme) and each shows as its own theme:
 - `fluent/` — values from [fluentui](https://github.com/microsoft/fluentui):
   Segoe UI stack, 4px rectangular controls with 1px neutral strokes, flat
   surfaces, depth only on flyouts, 2px focus rect, underline active tab,
-  40x20 switch, `#0f6cbd` / `#479ef5` accent, acrylic overlays.
+  40x20 switch, acrylic overlays. Accent + surfaces inherit Velocity
+  (Style Settings accent picks flow through).
 - `material/` — values from
   [material-web](https://github.com/material-components/material-web):
   Roboto, 40px pill buttons, M3 shape scale + pill toggles, outline
   strokes, 3px tab indicator, tonal FAB, state-layer hover, sheet
-  elevation, `#6750a4` / `#d0bcff`.
+  elevation. Accent + surfaces inherit Velocity; M3 roles derive from
+  donor vars via `color-mix`, so Style Settings accent picks flow through.
 - `liquid/` — values inspired by
   [liquidGL](https://github.com/naughtyduk/liquidGL): boosted backdrop
   blur + saturate on overlays and leaf containers (tab strip, ribbon and
