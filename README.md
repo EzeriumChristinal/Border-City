@@ -11,7 +11,7 @@ Needs Obsidian 1.13+ and the Style Settings plugin for the tunable options.
 1. Build first: `cd border-city && npm install && npm run build`
    (needs Node 18+).
 2. Inside `<vault>/.obsidian/themes/` make a folder named exactly
-   `Border City` (must match `manifest.json` `"name"` — any other folder
+   `Border City` (must match `manifest.json` `"name"`; any other folder
    name hides the theme from the selector). Copy only
    `border-city/manifest.json` + `border-city/theme.css` into it. Copying
    the whole repo folder does not work, it holds build sources.
@@ -19,7 +19,7 @@ Needs Obsidian 1.13+ and the Style Settings plugin for the tunable options.
    as its manifest (`Border City - Fluent`, `Border City - Material`,
    `Border City - Liquid`), holding only that variant's `manifest.json` +
    `theme.css` (built into `border-city-fluent/`, `border-city-material/`,
-   `border-city-liquid/` — rename on copy).
+   `border-city-liquid/`; rename on copy).
 4. Pick Border City under Settings → Appearance → Themes.
 
 ## Variants (experimental)
@@ -43,6 +43,13 @@ markdown render stays Border in all three.
   approximation.
 
 Expect rough edges on all three. Bug reports against base get priority.
+
+## Screenshots
+
+`border-city/screenshots/` renders all four themes × light/dark from
+`fixture.html` (`npm run screenshots`, needs a Chromium binary). Covers
+tabs, sidebar, modal, prose, tables, code, callouts, tasks, embeds, and
+the Style Settings slider row. Outputs stay git-ignored.
 
 ## Layout
 

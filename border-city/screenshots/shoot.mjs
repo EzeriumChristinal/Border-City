@@ -1,7 +1,7 @@
 // Screenshots: 4 themes x light/dark -> out/*.png + compare sheets.
 // Needs a Chromium binary (default /opt/helium/helium, else HELIUM_BIN).
 // Usage: npm run screenshots
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
@@ -19,6 +19,10 @@ const THEMES = {
 };
 const MODES = ['theme-light', 'theme-dark'];
 
+if (!existsSync(HELIUM)) throw new Error('no Chromium binary at ' + HELIUM + ' (set HELIUM_BIN)');
+for (const rel of ['../theme.css', '../../border-city-fluent/theme.css', '../../border-city-material/theme.css', '../../border-city-liquid/theme.css'])
+  if (!existsSync(join(HERE, rel))) throw new Error('missing ' + rel + ': run npm run build first');
+
 const fixture = readFileSync(join(HERE, 'fixture.html'), 'utf8');
 mkdirSync(OUT, { recursive: true });
 for (const [theme, css] of Object.entries(THEMES)) {
@@ -31,12 +35,15 @@ for (const [theme, css] of Object.entries(THEMES)) {
     const page = join(OUT, `_fixture.${theme}.${mode}.html`);
     const shot = join(OUT, `${theme}.${mode}.png`);
     writeFileSync(page, html);
-    const r = spawnSync(HELIUM, ['--headless', '--no-sandbox', '--disable-gpu',
-      '--user-data-dir=' + join(tmpdir(), 'helium-shots'),
-      `--screenshot=${shot}`, '--window-size=1280,3400', pathToFileURL(page).href],
-      { encoding: 'utf8' });
-    if (r.status !== 0) throw new Error('helium failed: ' + String(r.stderr).slice(0, 500));
-    rmSync(page);
+    try {
+      const r = spawnSync(HELIUM, ['--headless', '--no-sandbox', '--disable-gpu',
+        '--user-data-dir=' + join(tmpdir(), 'helium-shots'),
+        `--screenshot=${shot}`, '--window-size=1280,3400', pathToFileURL(page).href],
+        { encoding: 'utf8' });
+      if (r.status !== 0) throw new Error('helium failed: ' + String(r.stderr).slice(0, 500));
+    } finally {
+      rmSync(page, { force: true });
+    }
     console.log('shot ' + theme + ' ' + mode);
   }
 }

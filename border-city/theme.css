@@ -5,11 +5,18 @@ body{--anim-duration-superfast: 75ms;--anim-duration-fast: 150ms;--vl-ease-out: 
 :root {
   --divider-color: var(--background-modifier-border);
   --background-modifier-border-hover: color-mix(in srgb, var(--color-accent-1) 30%, transparent);
-  /* Dense slider: knob fills bar (Velocity tunes macOS only, Linux left 12px knob in 20px track) */
-  --slider-track-height: 16px;
-  --slider-thumb-height: 16px;
-  --slider-thumb-width: 16px;
-  --slider-thumb-y: 0px;
+}
+/* Sliders: Border overhang knob (thin 4px bar, 18px knob straddling it, -6px centers; body beats chrome body; skip mobile). Dense knob-in-bar designs kept clipping at the input paint box, so sizing copies Border core instead. */
+body:not(.is-mobile) {
+  --slider-track-height: 4px;
+  --slider-thumb-height: 18px;
+  --slider-thumb-width: 18px;
+  --slider-thumb-y: -6px;
+}
+/* Range inputs paint the knob past the input box: drop paint containment so a fractional-scale hair never slices it (also covers Border hover outlines) */
+body:not(.is-mobile) input[type="range"] {
+  contain: layout style;
+  overflow: visible;
 }
 /* Hover bg goes accent-bright: keep text on --text-on-accent (variants pin it dark where accent is bright) */
 button.mod-cta:hover,

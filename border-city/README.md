@@ -7,7 +7,7 @@ Border markdown (headings, lists, tables, callouts, code, checkboxes, embeds).
 
 - `theme.css` + `manifest.json`: built artifact. Install only these two files
   (inside a vault theme folder named exactly `Border City` to match the
-  manifest `"name"` — any other folder name hides the theme), not the whole
+  manifest `"name"`; any other folder name hides the theme), not the whole
   repo folder.
 - `build.mjs`: the merge. Copies Velocity `src/`, drops markdown/integration
   modules, applies patches, compiles chrome with Sass, appends Border markdown
@@ -38,7 +38,7 @@ plus `compare-<mode>.html` 4-up contact sheets. Outputs git-ignored.
 Broken variant = visual outlier against base.
 
 Build prints a var check backed by a snapshot in `build.mjs`
-(`KNOWN_MISSING`): new undefined vars fail the build — bridge them in
+(`KNOWN_MISSING`): new undefined vars fail the build; bridge them in
 `dist/bridge.css`, drop the rule using them, or allowlist proven builtins.
 Remaining entries are Obsidian builtins or vars upstream Velocity itself
 never defines (its own `theme.css` lacks them too).
@@ -47,10 +47,10 @@ never defines (its own `theme.css` lacks them too).
 
 Velocity: all of `20_markdown`, all of `60_integrations` except settings-panel
 styling, alt/active-checkboxes, css-classes, math-callouts, media, Raveo 191KB
-font embed (falls back to Inter/system stack), 15 dead Style Settings toggles.
+font embed (falls back to Inter/system stack), 14 dead Style Settings toggles.
 
 Border: workspace/backgrounds/layout/tabs/autohide (~2700 lines), Appearance
-light+dark color systems (~1900 lines settings + ~300 lines vars — Velocity owns
+light+dark color systems (~1900 lines settings + ~300 lines vars, Velocity owns
 color now), Components/Mobile/Plugin settings, presets (35 JSON), alt
 checkboxes, icon/pdf/mobile/plugin sections, plus 16 dead Editor toggles
 (focus mode, hover indicator, grid pattern, alt-checkbox switch) whose CSS

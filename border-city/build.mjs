@@ -1,6 +1,6 @@
 // Border City build: Velocity chrome (SCSS) + Border markdown (CSS).
 // Usage: node build.mjs
-import { readFileSync, writeFileSync, mkdirSync, cpSync, rmSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, cpSync, rmSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -12,7 +12,6 @@ const BORDER = join(ROOT, 'obsidian-border-main');
 const SRC = join(OUT, 'src');
 const DIST = join(OUT, 'dist');
 const die = (m) => { console.error('FAIL: ' + m); process.exit(1); };
-console.log('roots ok: ' + existsSync(VELO) + ' ' + existsSync(BORDER));
 mkdirSync(DIST, { recursive: true });
 // ---- filtered Velocity source tree ----
 const KEEP_FILES = [
@@ -86,7 +85,7 @@ patch('30_interface/_document-search.scss', [[56, 57]], [[56, '.markdown-rendere
   const p = join(SRC, '30_interface/_fab-and-header.scss');
   const lines = readFileSync(p, 'utf8').split('\n');
   if (!lines[47].includes('Floating action button')) die('fab block moved: line 48 is not FAB header: ' + lines[47].slice(0, 80));
-  const last = [...lines].reverse().find((l) => l.trim() !== '');
+  const last = lines.findLast((l) => l.trim() !== '');
   if (last !== '}') die('fab file end moved: ' + String(last).slice(0, 80));
   const head = lines.slice(0, 47).join('\n');
   writeFileSync(p, head + '\n' + [
@@ -102,7 +101,9 @@ patch('30_interface/_document-search.scss', [[56, 57]], [[56, '.markdown-rendere
 }
 const USES = KEEP_FILES.map((f) => `@use "${f.replace(/\.scss$/, '')}";`);
 // settings-panel styling slots between titlebar and modals, as before
-USES.splice(USES.indexOf('@use "30_interface/_titlebar";') + 1, 0, '@use "30_interface/_style-settings";');
+const titlebarAt = USES.indexOf('@use "30_interface/_titlebar";');
+if (titlebarAt < 0) die('titlebar entry missing from USES');
+USES.splice(titlebarAt + 1, 0, '@use "30_interface/_style-settings";');
 writeFileSync(join(SRC, 'theme.scss'), USES.join('\n') + '\n');
 console.log('patched + entry written');
 // ---- pruned Velocity settings: drop entries for removed features ----
@@ -130,10 +131,10 @@ for (const b of vblocks) {
 }
 const veloSettings = vheader.concat(kept.flat()).join('\n');
 writeFileSync(join(DIST, 'velocity-settings.css'), veloSettings);
-console.log('velocity settings: kept ' + kept.length + ', dropped: ' + droppedNames.join(','));
+console.log('velocity settings: kept ' + kept.length + ', dropped: ' + [...new Set(droppedNames)].join(','));
 // ---- Border slices (marker-anchored; build fails if upstream renames a marker) ----
 const ball = readFileSync(join(BORDER, 'theme.css'), 'utf8').split('\n');
-const take = (ranges) => ranges.flatMap((r) => ball.slice(r[0] - 1, r[1])).join('\n');
+const take = (ranges) => ranges.flatMap((r) => ball.slice(r[0] - 1, r[1])).join('\n'); // ranges 1-based inclusive
 const findLine = (pred, what) => { // unique 1-based hit; build fails otherwise
   const hits = [];
   ball.forEach((l, i) => { if (pred(l)) hits.push(i + 1); });
@@ -150,6 +151,7 @@ const blockStart = (nameLine) => { // walk back to enclosing /* @settings
 };
 const headEnd = ball.findIndex((l) => l.trim() === '*/') + 1; // Theme Info settings header
 if (ball[0].includes('@settings') === false || headEnd < 2) die('border settings header not found');
+if (ball.slice(headEnd).find((l) => l.trim() !== '') !== '/* @settings') die('border settings header end moved');
 const edStart = blockStart(namedLine('Editor')), edEnd = blockStart(namedLine('Mobile')) - 1; // Editor block, stops before Mobile
 const titleAt = at('/* ====== title style ====== */', 'titles/links/tags');
 const emphAt = at('/* ====== line emphasis ====== */', 'highlight/hover-indicator (dropped)');
@@ -189,10 +191,34 @@ writeFileSync(join(DIST, 'border-settings.css'), borderSettings);
 console.log('border settings lines: ' + borderSettings.split('\n').length + ', css lines: ' + borderCss.split('\n').length);
 // ---- bridge: vars Border-keep needs that neither chrome nor Obsidian guarantees,
 // plus one shared contrast fix (accent hover bg must pair with --text-on-accent) ----
-const bridge = ['/* Border City bridge */', ':root {', '  --divider-color: var(--background-modifier-border);', '  --background-modifier-border-hover: color-mix(in srgb, var(--color-accent-1) 30%, transparent);', '  /* Dense slider: knob fills bar (Velocity tunes macOS only, Linux left 12px knob in 20px track) */', '  --slider-track-height: 16px;', '  --slider-thumb-height: 16px;', '  --slider-thumb-width: 16px;', '  --slider-thumb-y: 0px;', '}', '/* Hover bg goes accent-bright: keep text on --text-on-accent (variants pin it dark where accent is bright) */', 'button.mod-cta:hover,', ':is(.mod-root, .popover) .metadata-add-button:hover,', '.menu-item:not(.is-disabled):hover {', '  color: var(--text-on-accent);', '}'].join('\n');
+const bridge = [
+  '/* Border City bridge */',
+  ':root {',
+  '  --divider-color: var(--background-modifier-border);',
+  '  --background-modifier-border-hover: color-mix(in srgb, var(--color-accent-1) 30%, transparent);',
+  '}',
+  '/* Sliders: Border overhang knob (thin 4px bar, 18px knob straddling it, -6px centers; body beats chrome body; skip mobile). Dense knob-in-bar designs kept clipping at the input paint box, so sizing copies Border core instead. */',
+  'body:not(.is-mobile) {',
+  '  --slider-track-height: 4px;',
+  '  --slider-thumb-height: 18px;',
+  '  --slider-thumb-width: 18px;',
+  '  --slider-thumb-y: -6px;',
+  '}',
+  '/* Range inputs paint the knob past the input box: drop paint containment so a fractional-scale hair never slices it (also covers Border hover outlines) */',
+  'body:not(.is-mobile) input[type="range"] {',
+  '  contain: layout style;',
+  '  overflow: visible;',
+  '}',
+  '/* Hover bg goes accent-bright: keep text on --text-on-accent (variants pin it dark where accent is bright) */',
+  'button.mod-cta:hover,',
+  ':is(.mod-root, .popover) .metadata-add-button:hover,',
+  '.menu-item:not(.is-disabled):hover {',
+  '  color: var(--text-on-accent);',
+  '}',
+].join('\n');
 writeFileSync(join(DIST, 'bridge.css'), bridge + '\n');
 // ---- compile chrome ----
-const cands = [join(ROOT, '.build-cache/node_modules/.bin/sass'), join(OUT, 'node_modules/.bin/sass'), 'sass'];
+const cands = [join(OUT, 'node_modules/.bin/sass'), 'sass'];
 let bin = null;
 for (const c of cands) { try { if (spawnSync(c, ['--version'], { encoding: 'utf8' }).status === 0) { bin = c; break; } } catch (e) { /* next */ } }
 if (!bin) die('no sass binary');
@@ -204,7 +230,8 @@ console.log('chrome bytes: ' + chrome.length);
 const clean = (chrome + '\n' + bridge + '\n' + borderCss).replace(/\/\*[\s\S]*?\*\//g, ' ');
 const used = new Set([...clean.matchAll(/var\(\s*(--[A-Za-z0-9-_]+)/g)].map((m) => m[1]));
 const defined = new Set([...clean.matchAll(/(--[A-Za-z0-9-_]+)\s*:/g)].map((m) => m[1]));
-const droppedVars = new Set([...readFileSync(join(BORDER, 'theme.css'), 'utf8').matchAll(/(--[A-Za-z0-9-_]+):/g)].map((m) => m[1]));
+const borderDefs = new Set([...readFileSync(join(BORDER, 'theme.css'), 'utf8').matchAll(/(--[A-Za-z0-9-_]+):/g)].map((m) => m[1]));
+const droppedVars = new Set([...borderDefs].filter((v) => !defined.has(v))); // defined upstream but in no kept slice
 const missing = [...used].filter((v) => !defined.has(v)).sort();
 // Snapshot: every MISSING verified as Obsidian builtin or var upstream Velocity
 // itself never defines (its theme.css lacks them too). New MISSING tied to a
@@ -220,15 +247,15 @@ const KNOWN_MISSING = ['--anim-duration-moderate', '--anim-motion-delay', '--ani
   '--touch-radius-l', '--touch-radius-s', '--touch-radius-xs', '--touch-radius-xxs',
   '--touch-size-l', '--touch-size-xxs'];
 console.log('border vars used: ' + used.size + ', missing: ' + missing.length);
-for (const v of missing) console.log('  MISSING ' + v + (droppedVars.has(v) ? ' (also in dropped border region)' : ' (builtin?)'));
+for (const v of missing) console.log('  MISSING ' + v + (droppedVars.has(v) ? ' (dropped border region, not shipped)' : ' (builtin?)'));
 const unknown = missing.filter((v) => !KNOWN_MISSING.includes(v));
 if (unknown.length) die('new MISSING vars, bridge/drop/allowlist: ' + unknown.join(', '));
 const stale = KNOWN_MISSING.filter((v) => !missing.includes(v));
 if (stale.length) console.log('var check: resolved since snapshot: ' + stale.join(','));
 // ---- assemble ----
+const braces = (s) => [(s.match(/\{/g) || []).length, (s.match(/\}/g) || []).length];
 const themeOut = ['/* Border City: Velocity chrome + Border markdown. Built by build.mjs. */', chrome, bridge, borderCss, veloSettings, borderSettings].join('\n');
-const open = (themeOut.match(/\{/g) || []).length;
-const close = (themeOut.match(/\}/g) || []).length;
+const [open, close] = braces(themeOut);
 if (open !== close) die('brace imbalance ' + open + ' vs ' + close);
 writeFileSync(join(OUT, 'theme.css'), themeOut);
 console.log('theme.css bytes: ' + themeOut.length + ', braces: ' + open);
@@ -245,8 +272,7 @@ for (const v of VARIANTS) {
   rmSync(join(OUT, 'variants', v.name), { recursive: true, force: true }); // stale nested outputs; sources are the .css files above them
   const layer = readFileSync(join(OUT, v.src), 'utf8');
   const variantOut = [themeOut, '/* Variant: ' + v.name + ' (web-component token layer) */', layer].join('\n');
-  const vo = (variantOut.match(/\{/g) || []).length;
-  const vc = (variantOut.match(/\}/g) || []).length;
+  const [vo, vc] = braces(variantOut);
   if (vo !== vc) die('variant ' + v.name + ' brace imbalance ' + vo + ' vs ' + vc);
   const vdir = join(ROOT, 'border-city-' + v.name); // sibling theme dir: shows as its own theme
   mkdirSync(vdir, { recursive: true });
