@@ -8,6 +8,9 @@
   *{animation:none !important;transition:none !important;caret-color:transparent !important}
   section{display:block;max-width:1100px;margin:0 auto 48px;background:var(--background-primary);color:var(--text-normal);padding:24px;border-radius:12px}
   section h2.fixture-label{font:600 12px/1 system-ui;color:var(--text-faint);text-transform:uppercase;letter-spacing:.1em;margin:0 0 16px}
+  /* Harness shims: Obsidian app builtins absent outside the app (theme var-check allowlists them) */
+  body.theme-light{--color-accent:#0f6cbd;--text-accent:#0f6cbd;--background-modifier-border:#e1e1e1;--background-modifier-hover:#ececec;}
+  body.theme-dark{--color-accent:#479ef5;--text-accent:#479ef5;--background-modifier-border:#343434;--background-modifier-hover:#2b2b2b;}
 </style>
 <body class="theme-light">
 <!-- case tabs: chrome tab bar + status bar -->
@@ -45,8 +48,9 @@
 <!-- case markdown prose -->
 <section id="case-prose"><h2 class="fixture-label">prose</h2>
   <div class="markdown-preview-view markdown-rendered">
-    <h1>Heading one</h1><h2>Heading two</h2><h3>Heading three</h3>
-    <p>Body with <strong>bold must render red</strong>, <em>italics orange</em>, a <a href="#">link</a>, <mark>highlight</mark>, <code>inline code</code>, <s>strike</s>.</p>
+    <h1>Heading one</h1><h2>Heading two</h2><h3>Heading three</h3><h4>Heading four</h4><h5>Heading five</h5><h6>Heading six</h6>
+    <p>Body with <strong>bold must render red</strong>, <em>italics orange</em>, <strong><em>bold-italic blended</em></strong>, a <a class="internal-link" href="#">link</a>, <mark>highlight</mark>, <code>inline code</code>, <s>strike</s>.</p>
+    <hr>
     <ul><li>bullet one</li><li>bullet two<ul><li>nested bullet</li></ul></li></ul>
     <ol><li>first</li><li>second</li></ol>
     <blockquote>quote block</blockquote>
@@ -56,9 +60,11 @@
 <section id="case-special"><h2 class="fixture-label">special</h2>
   <div class="markdown-preview-view markdown-rendered">
     <table><thead><tr><th>token</th><th>light</th><th>dark</th></tr></thead><tbody><tr><td>accent</td><td>#0f6cbd</td><td>#479ef5</td></tr><tr><td>surface</td><td>#fef7ff</td><td>#141218</td></tr></tbody></table>
-    <pre><code class="language-css">:root {
+    <pre class="language-css"><code class="language-css">:root {
   --color-accent: #0f6cbd;
 }</code></pre>
+    <pre class="language-python"><code class="language-python">def hello():
+    return "world"</code></pre>
     <div class="callout" data-callout="note"><div class="callout-title"><div class="callout-icon">✎</div><div class="callout-title-inner">Note</div></div><div class="callout-content"><p>note body</p></div></div>
     <div class="callout" data-callout="warning"><div class="callout-title"><div class="callout-icon">⚠</div><div class="callout-title-inner">Warning</div></div><div class="callout-content"><p>warning body</p></div></div>
     <div class="callout" data-callout="tip"><div class="callout-title"><div class="callout-icon">💡</div><div class="callout-title-inner">Tip</div></div><div class="callout-content"><p>tip body</p></div></div>

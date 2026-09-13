@@ -1383,6 +1383,146 @@ body {
     opacity: 1;
     transition: opacity var(--anim-duration-fast) linear;
 }
+/* Border City markdown polish: var base (heading scale, emphasis weight, code contrast) + rules 1-6 */
+body {
+  --h1-size: 1.75em;
+  --h2-size: 1.5em;
+  --h3-size: 1.3em;
+  --h4-size: 1.15em;
+  --h5-size: 1.05em;
+  --h6-size: 1em;
+  --bold-weight: 700;
+  --code-normal: var(--text-normal);
+  --code-comment: var(--text-muted);
+  --code-border-light: 1px solid var(--background-modifier-border);
+  --code-border-dark: 1px solid var(--background-modifier-border);
+  --code-background-light: color-mix(in srgb, var(--text-muted) 9%, var(--background-primary));
+  --code-background-dark: color-mix(in srgb, var(--text-muted) 12%, transparent);
+  --inline-code-background-light: color-mix(in srgb, var(--color-pink) 10%, transparent);
+  --inline-code-background-dark: color-mix(in srgb, var(--color-pink) 15%, transparent);
+}
+/* 1. heading rhythm: wider scale (vars above) + breathing room + tight tracking; bars untouched */
+.markdown-rendered :is(h1, h2, h3, h4, h5, h6) {
+  letter-spacing: -0.01em;
+}
+.markdown-rendered h1 { margin-block: 1em 0.5em; }
+.markdown-rendered h2 { margin-block: 0.9em 0.5em; }
+.markdown-rendered :is(h3, h4) { margin-block: 0.8em 0.4em; }
+.markdown-rendered :is(h5, h6) { margin-block: 0.7em 0.4em; }
+.markdown-source-view.mod-cm6 .cm-content > .HyperMD-header { padding-block: 0.35em 0.25em; }
+/* 2. emphasis: bold weight parity, bold-italic blends both accents (Border keeps red/orange) */
+.markdown-rendered strong,
+.cm-s-obsidian span.cm-strong { font-weight: var(--bold-weight); }
+.markdown-rendered :is(strong em, em strong),
+.cm-s-obsidian span.cm-strong.cm-em {
+  font-weight: var(--bold-weight);
+  color: color-mix(in srgb, var(--color-red) 55%, var(--color-orange));
+}
+/* 3. links: subtle underline at rest, full accent on hover; Border hover pill kept (chrome pins link-decoration none, so this is hardcoded) */
+.markdown-rendered :is(a.internal-link, a.external-link) {
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  text-decoration-color: color-mix(in srgb, var(--color-accent-1) 55%, transparent);
+}
+.markdown-rendered :is(a.internal-link, a.external-link):hover {
+  text-decoration-line: underline;
+  text-decoration-color: var(--color-accent-1);
+}
+.cm-s-obsidian span:is(.cm-hmd-internal-link, .cm-link:not(.cm-formatting-link)) {
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  text-decoration-color: color-mix(in srgb, var(--color-accent-1) 55%, transparent);
+}
+/* 4. inline code: flat pill over the old dotted pattern, pink kept */
+.markdown-rendered :not(pre) > code,
+.cm-s-obsidian span.cm-inline-code:not(.cm-formatting):not(.cm-hmd-indented-code) {
+  padding: 0.1em 0.4em;
+  border: 1px solid color-mix(in srgb, var(--color-pink) 28%, transparent);
+  border-radius: var(--radius-s);
+}
+/* 5. fenced blocks: solid hairline, glass radius, pill flair; language badge (reading view) */
+.markdown-rendered pre {
+  position: relative;
+  border-radius: var(--radius-m);
+  padding: 12px 14px;
+}
+.markdown-source-view.mod-cm6 .code-block-flair,
+.markdown-rendered button.copy-code-button {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-s);
+  background: color-mix(in srgb, var(--text-normal) 8%, transparent);
+  padding: 2px 8px;
+}
+.markdown-rendered pre[class*="language-"]::before {
+  position: absolute;
+  top: 8px;
+  right: 44px;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  border: 1px solid var(--background-modifier-border);
+  border-radius: var(--radius-s);
+  background: color-mix(in srgb, var(--text-normal) 8%, transparent);
+  padding: 2px 8px;
+  pointer-events: none;
+}
+.markdown-rendered pre[class*="language-javascript"]::before,
+.markdown-rendered pre[class*="language-js"]::before { content: "javascript"; }
+.markdown-rendered pre[class*="language-typescript"]::before,
+.markdown-rendered pre[class*="language-ts"]::before { content: "typescript"; }
+.markdown-rendered pre[class*="language-python"]::before { content: "python"; }
+.markdown-rendered pre[class*="language-css"]::before { content: "css"; }
+.markdown-rendered pre[class*="language-html"]::before { content: "html"; }
+.markdown-rendered pre[class*="language-json"]::before { content: "json"; }
+.markdown-rendered pre[class*="language-shell"]::before,
+.markdown-rendered pre[class*="language-bash"]::before { content: "shell"; }
+.markdown-rendered pre[class*="language-markdown"]::before,
+.markdown-rendered pre[class*="language-md"]::before { content: "markdown"; }
+/* 6. horizontal rules: native hairline base (always paints) + accent glow + hollow bead threaded on the line */
+body .markdown-rendered hr,
+body .markdown-preview-view hr,
+body .markdown-source-view.mod-cm6 .cm-line hr {
+  margin: 2.5em auto;
+  border: none;
+  border-top: 1px solid var(--background-modifier-border);
+  height: 0;
+  overflow: visible;
+  position: relative;
+  background: transparent;
+}
+body .markdown-rendered hr::before,
+body .markdown-preview-view hr::before,
+body .markdown-source-view.mod-cm6 .cm-line hr::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 18%;
+  right: 18%;
+  height: 1px;
+  background: linear-gradient(to right, transparent, color-mix(in srgb, var(--color-accent-1) 55%, transparent), transparent);
+  pointer-events: none;
+}
+body .markdown-rendered hr::after,
+body .markdown-preview-view hr::after,
+body .markdown-source-view.mod-cm6 .cm-line hr::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 5px;
+  height: 5px;
+  transform: translate(-50%, -50%) rotate(45deg);
+  border-radius: 1.5px;
+  background: transparent;
+  border: 1px solid var(--background-modifier-border);
+  border-color: color-mix(in srgb, var(--color-accent-1) 65%, transparent);
+}
 /* @settings
 name: Velocity - Quick Settings
 id: obsidian-velocity
