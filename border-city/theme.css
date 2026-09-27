@@ -1775,6 +1775,7 @@ settings:
         type: info-text
         markdown: true
 */
+/* @settings
 
 name: Editor
 id: Editor
@@ -3041,5 +3042,3 @@ settings:
 
 
 */
-
-/* @settings

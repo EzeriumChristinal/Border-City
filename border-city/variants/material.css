@@ -11,8 +11,6 @@ body {
   --font-interface-theme: "Roboto", system-ui, sans-serif;
   /* M3 uses plain rounded rects, no Apple squircle */
   --corner-smoothing: unset;
-  /* Flat workspace: kill Velocity radial Liquid gradient */
-  --bg-main-workspace: none;
   /* M3 shape scale: cards 12-16, sheets 28, full pill via 999px below */
   --radius-xs: 4px;
   --radius-s: 8px;
@@ -73,6 +71,8 @@ body {
   --glass-button: none;
   --glass-button-l: none;
   --glass-button-error: none;
+  /* Chrome defines this in .theme-* (class beats the layer's body rule) */
+  --bg-main-workspace: none;
   /* Chrome never defines this (core builtin): pin to donor accent */
   --interactive-accent: var(--color-accent);
   --menu-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);

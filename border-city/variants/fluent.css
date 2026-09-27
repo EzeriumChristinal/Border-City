@@ -15,8 +15,6 @@ body {
   --font-interface-theme: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
   /* Fluent uses plain rounded rects, no Apple squircle */
   --corner-smoothing: unset;
-  /* Flat workspace: kill Velocity radial Liquid gradient */
-  --bg-main-workspace: none;
   --anim-duration-fast: 100ms;
   /* Fluent corner radius: small/rectangular */
   --radius-xs: 2px;
@@ -60,6 +58,8 @@ body {
   --glass-button: none;
   --glass-button-l: none;
   --glass-button-error: none;
+  /* Chrome defines this in .theme-* (class beats the layer's body rule) */
+  --bg-main-workspace: none;
   --menu-shadow: 0 8px 16px rgba(0, 0, 0, 0.14);
   --shadow-toggle: none;
   --shadow-setting-items-top: 0 1px 4px rgba(0, 0, 0, 0.12);

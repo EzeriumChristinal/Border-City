@@ -143,11 +143,11 @@ const findLine = (pred, what) => { // unique 1-based hit; build fails otherwise
 };
 const at = (marker, what) => findLine((l) => l.includes(marker), marker + ' for ' + what);
 const namedLine = (name) => findLine((l) => l.trim() === 'name: ' + name, 'settings block ' + name);
-const blockStart = (nameLine) => { // walk back to enclosing /* @settings
+const blockStart = (nameLine) => { // 1-based line of the enclosing /* @settings opener
   let i = nameLine;
   while (i > 1 && !ball[i - 2].includes('/* @settings')) i--;
   if (i <= 1) die('no @settings above line ' + nameLine);
-  return i;
+  return i - 1; // ball[i-2] is the opener line (i-1); returning i dropped it and left raw YAML
 };
 const headEnd = ball.findIndex((l) => l.trim() === '*/') + 1; // Theme Info settings header
 if (ball[0].includes('@settings') === false || headEnd < 2) die('border settings header not found');
@@ -426,9 +426,14 @@ for (const name of ['fluent', 'material', 'liquid']) {
 console.log('variant var check OK');
 // ---- assemble ----
 const braces = (s) => [(s.match(/\{/g) || []).length, (s.match(/\}/g) || []).length];
+// A stray `*/` (comment close with no opener) or a dangling `/*` corrupts the rule
+// that follows: the parser swallows it into an invalid prelude. Counts can balance
+// while order is wrong, so scan depth in order and fail on any negative/leftover.
+const commentDepth = (s) => { let d = 0; for (const m of s.matchAll(/\/\*|\*\//g)) { d += m[0] === '/*' ? 1 : -1; if (d < 0) return -1; } return d; };
 const themeOut = ['/* Border City: Velocity chrome + Border markdown. Built by build.mjs. */', chrome, bridge, borderCss, polish, veloSettings, borderSettings].join('\n');
 const [open, close] = braces(themeOut);
 if (open !== close) die('brace imbalance ' + open + ' vs ' + close);
+if (commentDepth(themeOut) !== 0) die('unbalanced CSS comments in theme.css (stray */ or unclosed /*)');
 writeFileSync(join(OUT, 'theme.css'), themeOut);
 console.log('theme.css bytes: ' + themeOut.length + ', braces: ' + open);
 // ---- variants: separate installable themes, base + one token layer ----
@@ -446,6 +451,7 @@ for (const v of VARIANTS) {
   const variantOut = [themeOut, '/* Variant: ' + v.name + ' (web-component token layer) */', layer].join('\n');
   const [vo, vc] = braces(variantOut);
   if (vo !== vc) die('variant ' + v.name + ' brace imbalance ' + vo + ' vs ' + vc);
+  if (commentDepth(variantOut) !== 0) die('variant ' + v.name + ' unbalanced CSS comments');
   const vdir = join(ROOT, 'border-city-' + v.name); // sibling theme dir: shows as its own theme
   mkdirSync(vdir, { recursive: true });
   writeFileSync(join(vdir, 'theme.css'), variantOut);
