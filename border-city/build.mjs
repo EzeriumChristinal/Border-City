@@ -396,8 +396,8 @@ const defined = new Set([...clean.matchAll(/(--[A-Za-z0-9-_]+)\s*:/g)].map((m) =
 const borderDefs = new Set([...readFileSync(join(BORDER, 'theme.css'), 'utf8').matchAll(/(--[A-Za-z0-9-_]+):/g)].map((m) => m[1]));
 const droppedVars = new Set([...borderDefs].filter((v) => !defined.has(v))); // defined upstream but in no kept slice
 const missing = [...used].filter((v) => !defined.has(v)).sort();
-// Snapshot: every MISSING verified as Obsidian builtin or var upstream Velocity
-// itself never defines (its theme.css lacks them too). New MISSING tied to a
+// Snapshot: every MISSING verified as Obsidian builtin or a var no kept
+// Velocity module defines. New MISSING tied to a
 // dropped region = bridge it in dist/bridge.css or drop the rule using it.
 const KNOWN_MISSING = ['--anim-duration-moderate', '--anim-motion-delay', '--anim-motion-smooth',
   '--anim-motion-swing', '--blur-m', '--blur-s', '--color-accent', '--color-accent-5',

@@ -6,9 +6,11 @@ Upstream sources are vendored read-only. Never edit them in place.
 ## Map
 
 - `obsidian-velocity-master/`: upstream Velocity (Floodlight). Chrome donor.
-  Read-only. Its `theme.css` is a stale build artifact; `src/` is truth.
+  Read-only. `src/` is truth; the stale compiled `theme.css` and README
+  `assets/` are stripped (build reads neither).
 - `obsidian-border-main/`: upstream Border (Akifyss). Markdown donor.
-  Read-only. `theme.css` (9193 lines) is truth; `presets/` dropped downstream.
+  Read-only. `theme.css` (9193 lines) is truth; `presets/`, `img/` and the
+  cover images are stripped (build and shipped CSS read none of them).
 - `border-city/`: the merge. Only dir agents edit.
   - `build.mjs`: the merge script. Edit this, not outputs.
   - `src/`: filtered Velocity tree. Generated, git-ignored. Never hand-edit.
@@ -94,12 +96,11 @@ older than its `src/` + `build.mjs`.
   CSS dropped) go in BORDER_DROP_IDS, never by widening a slice to fit.
 - `dist/bridge.css` pins vars kept Border rules need that chrome and Obsidian
   omit. Prefer reusing a chrome-defined var over hardcoding.
-- Var check gates on a KNOWN_MISSING snapshot (builtins + vars upstream
-  Velocity never defines — its own `theme.css` lacks them too, so a
-  "(dropped border region)" tag alone never justifies a bridge). New MISSING
-  = build fails: bridge it, drop the rule using it, or allowlist a proven
-  builtin. `npm run check` doubles as CI gate (tracked outputs must match
-  a fresh build).
+- Var check gates on a KNOWN_MISSING snapshot (builtins + vars no kept
+  Velocity module defines, so a "(dropped border region)" tag alone never
+  justifies a bridge). New MISSING = build fails: bridge it, drop the rule
+  using it, or allowlist a proven builtin. `npm run check` doubles as CI
+  gate (tracked outputs must match a fresh build).
 - Keep both Style Settings id namespaces (`obsidian-velocity*`, Border
   `Editor`) collision-free. The settings-panel SCSS hooks on those ids.
 
