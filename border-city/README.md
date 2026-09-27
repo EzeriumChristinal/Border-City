@@ -5,14 +5,16 @@ Border markdown (headings, lists, tables, callouts, code, checkboxes, embeds).
 
 ## Layout
 
-- `theme.css` + `manifest.json`: built artifact. Install only these two files
-  (inside a vault theme folder named exactly `Border City` to match the
-  manifest `"name"`; any other folder name hides the theme), not the whole
-  repo folder.
+- `theme.css` + `manifest.json`: built artifact. Obsidian resolves a theme by
+  its folder name, so the folder must match the manifest `"name"` exactly. Use
+  `npm run bundle` to get correctly named folders; do not install the repo
+  folder itself.
 - `build.mjs`: the merge. Copies Velocity `src/`, drops markdown/integration
   modules, applies patches, compiles chrome with Sass, appends Border markdown
   slices + pruned Style Settings. Marker asserts fail the build if upstream
   sections move or rename.
+- `bundle-themes.mjs`: packs the four themes into `border-city-themes/` for
+  drag-and-drop install, or copies them straight into a vault (`--vault`).
 - `src/`, `dist/`: generated intermediates (git-ignored, rebuild to inspect).
 
 ## Rebuild
@@ -22,6 +24,19 @@ Needs a Sass binary (`npm install` inside `border-city/`, or PATH `sass`):
 ```sh
 npm run build   # regenerate theme.css + sibling variants
 npm run check   # rebuild + fail if tracked outputs differ (CI gate)
+npm run bundle  # build, then refresh border-city-themes/ for install
+```
+
+## Install
+
+`npm run bundle` writes `border-city-themes/` with one folder per theme, each
+named exactly as its manifest. Drag those four folders into a vault's
+`.obsidian/themes/`, or let the script copy them:
+
+```sh
+node bundle-themes.mjs --vault /path/to/Vault     # adds to .obsidian/themes/
+node bundle-themes.mjs --vault A --vault B        # several vaults at once
+node bundle-themes.mjs --no-build --vault ~/Vault # reuse the current build
 ```
 
 ## Screenshots
@@ -40,8 +55,8 @@ Broken variant = visual outlier against base.
 Build prints a var check backed by a snapshot in `build.mjs`
 (`KNOWN_MISSING`): new undefined vars fail the build; bridge them in
 `dist/bridge.css`, drop the rule using them, or allowlist proven builtins.
-Remaining entries are Obsidian builtins or vars upstream Velocity itself
-never defines (its own `theme.css` lacks them too).
+Remaining entries are Obsidian builtins or vars no kept Velocity module
+defines.
 
 ## What was cut
 
@@ -71,10 +86,9 @@ ships, CSS only. Markdown render untouched in all three (Border owns it).
 (`border-city-fluent/`, `border-city-material/`, `border-city-liquid/`,
 each `theme.css` = base + one token layer, `manifest.json` generated with
 its own name). They are build outputs (git-ignored, regenerated every
-build), not sources. To install, copy each pair into a vault theme folder
-named exactly as its manifest (`Border City - Fluent`, `Border City -
-Material`, `Border City - Liquid` — rename on copy, any other folder name
-hides the theme) and each shows as its own theme:
+build), not sources. `npm run bundle` collects them with the base theme into
+`border-city-themes/`, each folder named exactly as its manifest, ready to
+drag into a vault (`--vault` copies them for you):
 
 - `fluent/` — values from [fluentui](https://github.com/microsoft/fluentui):
   Segoe UI stack, 4px rectangular controls with 1px neutral strokes, flat

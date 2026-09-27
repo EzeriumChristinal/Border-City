@@ -5,5 +5,7 @@ node_modules/
 border-city-fluent/
 border-city-liquid/
 border-city-material/
+# drag-and-drop bundle (npm run bundle regenerates from border-city/)
+border-city-themes/
 # local test vault
 ObsidianTestVault/
