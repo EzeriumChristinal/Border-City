@@ -23,8 +23,20 @@ if (!existsSync(HELIUM)) throw new Error('no Chromium binary at ' + HELIUM + ' (
 for (const rel of ['../theme.css', '../../border-city-fluent/theme.css', '../../border-city-material/theme.css', '../../border-city-liquid/theme.css'])
   if (!existsSync(join(HERE, rel))) throw new Error('missing ' + rel + ': run npm run build first');
 
-const fixture = readFileSync(join(HERE, 'fixture.html'), 'utf8');
+// Crashpad writes under XDG_CONFIG_HOME; on locked-down hosts the default
+// (~/.config) is read-only and the run dies before the screenshot. Point it at
+// a writable dir unless the caller already chose one; fall back into out/ when
+// the temp dir itself is read-only.
 mkdirSync(OUT, { recursive: true });
+const profile = (() => {
+  for (const p of [join(tmpdir(), 'helium-shots'), join(OUT, '_helium-profile')]) {
+    try { mkdirSync(p, { recursive: true }); return p; } catch { /* try next */ }
+  }
+  throw new Error('no writable profile dir for the screenshot run');
+})();
+const env = process.env.XDG_CONFIG_HOME ? process.env : { ...process.env, XDG_CONFIG_HOME: profile };
+
+const fixture = readFileSync(join(HERE, 'fixture.html'), 'utf8');
 for (const [theme, css] of Object.entries(THEMES)) {
   for (const mode of MODES) {
     // Variant theme.css files are standalone (base + layer); mode flips body class.
@@ -38,10 +50,10 @@ for (const [theme, css] of Object.entries(THEMES)) {
     try {
       const r = spawnSync(HELIUM, ['--headless', '--no-sandbox', '--disable-gpu', '--hide-scrollbars',
         '--force-device-scale-factor=1',
-        '--user-data-dir=' + join(tmpdir(), 'helium-shots'),
+        '--user-data-dir=' + profile,
         `--screenshot=${shot}`, '--window-size=1280,3400', pathToFileURL(page).href],
-        { encoding: 'utf8' });
-      if (r.status !== 0) throw new Error('helium failed: ' + String(r.stderr).slice(0, 500));
+        { encoding: 'utf8', env });
+      if (r.status !== 0) throw new Error('helium failed: ' + String(r.stderr || r.error || '').trim().slice(-400));
     } finally {
       rmSync(page, { force: true });
     }

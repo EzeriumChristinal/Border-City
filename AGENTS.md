@@ -110,7 +110,8 @@ older than its `src/` + `build.mjs`.
   is rebuild + tracked-output gate (CI).
 - `border-city/screenshots/`: `fixture.html` + `shoot.mjs` harness,
   `out/` git-ignored. Needs a Chromium binary (`HELIUM_BIN`, default
-  `/opt/helium/helium`).
+  `/opt/helium/helium`); the harness sets a writable `XDG_CONFIG_HOME`
+  itself, so no env prefix is needed on locked-down hosts.
 - Manual Obsidian check (optional): copy each theme's `manifest.json` +
   `theme.css` into a test vault's `.obsidian/themes/`, one folder per theme
   named exactly as its manifest (`Border City` plus ` - Fluent`,

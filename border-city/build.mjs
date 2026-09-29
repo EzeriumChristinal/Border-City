@@ -72,6 +72,17 @@ patch('00_elements/_base.scss', [[301, 307], [99, 104], [24, 27]],
   [[24, 'override-default-font'], [99, '// Windows'], [303, 'restore-indent-guide']]);
 patch('50_mobile/__mobile.scss', [[96, 96]], [[96, 'view-top-spacing-markdown']]);
 patch('30_interface/_document-search.scss', [[56, 57]], [[56, '.markdown-rendered .search-highlight']]);
+{ // contrast fix: --text-color is a chrome button-scoped alias, never defined at
+  // :root in the theme or in Obsidian's built-in theme.css, so this rule computed
+  // to no color. --text-normal is the var it should have used.
+  const p = join(SRC, '00_elements/_base.scss');
+  const src = readFileSync(p, 'utf8');
+  if (!src.includes('color: var(--text-color);')) die('base.scss: --text-color rule moved');
+  writeFileSync(p, src.replaceAll('var(--text-color);', 'var(--text-normal);'));
+}
+// Marker drift must fail, not silently mis-slice: a bad line number used to fall
+// through to slice(-1) (last line), shipping a wrong or empty region with a green build.
+// Asserted below, right after the marker helpers exist.
 { // settings-panel css: drop news rules (promo setting removed)
   const p = join(SRC, '30_interface/_style-settings.scss');
   const lines = readFileSync(p, 'utf8').split('\n');
@@ -142,6 +153,9 @@ const findLine = (pred, what) => { // unique 1-based hit; build fails otherwise
   return hits[0];
 };
 const at = (marker, what) => findLine((l) => l.includes(marker), marker + ' for ' + what);
+for (const m of ['/* Paragraphs */', '/* ====== Callout ====== */', '/* ====== title style ====== */',
+  '/* ====== line emphasis ====== */', '/* ====== Bold ====== */', '/* Alternate Checkboxes */'])
+  if (at(m, 'slice anchor') < 1) die('bad slice anchor line for [' + m + ']');
 const namedLine = (name) => findLine((l) => l.trim() === 'name: ' + name, 'settings block ' + name);
 const blockStart = (nameLine) => { // 1-based line of the enclosing /* @settings opener
   let i = nameLine;
@@ -378,6 +392,24 @@ const bridge = [
   '.menu-item:not(.is-disabled):hover {',
   '  color: var(--text-on-accent);',
   '}',
+  '/* Reduced motion: the merge shipped no handling (the Border vendor block the',
+  ' * build drops only scaled one flyout). Zero the duration tokens Chrome reads',
+  ' * and stop infinite loops, so vestibular-sensitive users get a static UI. */',
+  '@media (prefers-reduced-motion: reduce) {',
+  '  :root {',
+  '    --anim-duration-superfast: 1ms;',
+  '    --anim-duration-fast: 1ms;',
+  '    --anim-duration-moderate: 1ms;',
+  '    --anim-duration-slow: 1ms;',
+  '    --anim-motion-smooth: 1ms;',
+  '    --anim-motion-delay: 1ms;',
+  '    --anim-motion-swing: 1ms;',
+  '  }',
+  '  body :is(button, .clickable-icon, .menu-item, .workspace-tab-header, .nav-file-title, .nav-folder-title) {',
+  '    transition: none;',
+  '  }',
+  '  *, *::before, *::after { animation-iteration-count: 1 !important; }',
+  '}',
 ].join('\n');
 writeFileSync(join(DIST, 'bridge.css'), bridge + '\n');
 // ---- compile chrome ----
@@ -406,7 +438,7 @@ const KNOWN_MISSING = ['--anim-duration-moderate', '--anim-motion-delay', '--ani
   '--icon-s-stroke-width', '--interactive-accent-hsl', '--list-marker-color-collapsed',
   '--list-marker-color-hover', '--nav-item-background-selected', '--p-spacing',
   '--safe-area-inset-bottom', '--size-4-3', '--size-4-6', '--status-bar-border-color',
-  '--text-accent-hover', '--text-color', '--text-on-accent', '--text-success',
+  '--text-accent-hover', '--text-on-accent', '--text-success',
   '--touch-radius-l', '--touch-radius-s', '--touch-radius-xs', '--touch-radius-xxs',
   '--touch-size-l', '--touch-size-xxs'];
 console.log('border vars used: ' + used.size + ', missing: ' + missing.length);
